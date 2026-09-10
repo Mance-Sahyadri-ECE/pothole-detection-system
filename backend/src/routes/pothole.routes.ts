@@ -1,0 +1,16 @@
+import { Router } from 'express';
+import {
+  getPotholes,
+  getPotholeById,
+  createPothole,
+  updateRepairStatus
+} from '../controllers/pothole.controller';
+
+const router = Router();
+
+router.get('/', getPotholes);
+router.post('/', createPothole);
+router.get('/:id', getPotholeById);
+router.patch('/:id/repair', updateRepairStatus);
+
+export default router;

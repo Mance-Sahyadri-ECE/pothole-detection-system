@@ -1,0 +1,235 @@
+// Prisma Schema for Pothole Detection System
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PUBLIC
+  FIELD_ENGINEER
+  GOVERNMENT_ENGINEER
+  ADMIN
+}
+
+enum PotholeStatus {
+  PENDING
+  INSPECTION
+  ASSIGNED
+  IN_PROGRESS
+  REPAIRED
+  VERIFIED
+}
+
+enum SeverityLevel {
+  NORMAL
+  MODERATE
+  SEVERE
+}
+
+enum PriorityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ComplaintStatus {
+  NEW
+  UNDER_REVIEW
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum RobotStatus {
+  ONLINE
+  OFFLINE
+  PATROLLING
+  CHARGING
+  MAINTENANCE
+}
+
+model User {
+  id           String                @id @default(uuid())
+  email        String                @unique
+  passwordHash String
+  name         String
+  role         Role                  @default(FIELD_ENGINEER)
+  departmentId String?
+  department   GovernmentDepartment? @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model GovernmentDepartment {
+  id           String   @id @default(uuid())
+  name         String
+  region       String   @default("Dakshina Kannada")
+  contactPhone String?
+  users        User[]
+  potholes     Pothole[]
+  notifications Notification[]
+}
+
+model Pothole {
+  id                          String                @id @default(uuid())
+  latitude                    Float
+  longitude                   Float
+  location                    String
+  roadName                    String
+  area                        String                @default("Adyar, Mangaluru")
+  severity                    SeverityLevel         @default(SEVERE)
+  confidence                  Float                 @default(0.95)
+  priority                    PriorityLevel         @default(CRITICAL)
+  status                      PotholeStatus         @default(PENDING)
+  trafficLevel                String                @default("HIGH")
+  detectedBy                  String                @default("Pothole Patrol Robot 01")
+  robotId                      String?
+  robot                       Robot?                @relation(fields: [robotId], references: [id])
+  imageUrl                    String
+  repairedImageUrl            String?
+  complaintCount              Int                   @default(0)
+  source                      String                @default("AI_DETECTION")
+  linkedComplaintId           String?
+  assignedDepartmentId        String?
+  assignedDepartment          GovernmentDepartment? @relation(fields: [assignedDepartmentId], references: [id])
+  assignedEngineer            String?
+  repairNotes                 String?
+  governmentNotificationSent  Boolean               @default(false)
+  boundingBox                 Json?
+  estimatedDimensions         Json?
+  detectedAt                  DateTime              @default(now())
+  updatedAt                   DateTime              @updatedAt
+
+  images                      PotholeImage[]
+  repairHistory               RepairHistory[]
+  notifications               Notification[]
+  repairs                     Repair[]
+}
+
+model PotholeImage {
+  id         String   @id @default(uuid())
+  potholeId  String
+  pothole    Pothole  @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+  imageUrl   String
+  imageType  String   @default("DETECTION")
+  bbox       Json?
+  createdAt  DateTime @default(now())
+}
+
+model Robot {
+  id                     String           @id @default("ROBOT-01")
+  name                   String           @default("Pothole Patrol Robot 01")
+  baseLocation           String           @default("Sahyadri College of Engineering & Management, Adyar, Mangaluru")
+  baseLatitude           Float            @default(12.8650354)
+  baseLongitude          Float            @default(74.9257386)
+  currentLatitude        Float            @default(12.8650354)
+  currentLongitude       Float            @default(74.9257386)
+  currentLocation        String           @default("Sahyadri College Campus, Adyar")
+  status                 RobotStatus      @default(ONLINE)
+  batteryLevel           Float            @default(87.8)
+  cruisingSpeedKmh       Float            @default(12.0)
+  potholesDetectedToday  Int              @default(8)
+  lastDataReceived       DateTime         @default(now())
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  potholes               Pothole[]
+  telemetries            RobotTelemetry[]
+}
+
+model RobotTelemetry {
+  id           String      @id @default(uuid())
+  robotId      String
+  robot        Robot       @relation(fields: [robotId], references: [id], onDelete: Cascade)
+  latitude     Float
+  longitude    Float
+  battery      Float
+  speed        Float
+  gpsStatus    String      @default("LOCKED")
+  cameraStatus String      @default("ACTIVE")
+  aiStatus     String      @default("RUNNING")
+  timestamp    DateTime    @default(now())
+}
+
+model Complaint {
+  id               String          @id
+  citizenName      String
+  citizenPhone     String?
+  citizenEmail     String?
+  location         String
+  latitude         Float
+  longitude        Float
+  description      String
+  severityEstimate SeverityLevel   @default(MODERATE)
+  imageUrl         String?
+  status           ComplaintStatus @default(NEW)
+  linkedPotholeId  String?
+  adminNotes       String?
+  submittedAt      DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Notification {
+  id                   String                @id
+  potholeId            String
+  pothole              Pothole               @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+  title                String
+  location             String
+  latitude             Float
+  longitude            Float
+  severity             SeverityLevel         @default(SEVERE)
+  priority             PriorityLevel         @default(CRITICAL)
+  detectedBy           String                @default("Pothole Patrol Robot 01")
+  recommendedAction    String
+  assignedDepartmentId String?
+  assignedDepartment   GovernmentDepartment? @relation(fields: [assignedDepartmentId], references: [id])
+  viewed               Boolean               @default(false)
+  resolved             Boolean               @default(false)
+  status               String                @default("NEW")
+  channelDelivery      Json?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+}
+
+model Repair {
+  id             String                @id @default(uuid())
+  potholeId      String
+  pothole        Pothole               @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+  engineerName   String
+  departmentName String                @default("Dakshina Kannada PWD")
+  status         PotholeStatus         @default(ASSIGNED)
+  notes          String?
+  repairImageUrl String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+}
+
+model RepairHistory {
+  id             String        @id @default(uuid())
+  potholeId      String
+  pothole        Pothole       @relation(fields: [potholeId], references: [id], onDelete: Cascade)
+  status         PotholeStatus
+  note           String
+  updatedBy      String        @default("PWD Control Room")
+  repairImageUrl String?
+  timestamp      DateTime      @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  target    String
+  details   String?
+  ipAddress String?
+  timestamp DateTime @default(now())
+}
