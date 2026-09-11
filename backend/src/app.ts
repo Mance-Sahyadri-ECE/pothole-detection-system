@@ -3,6 +3,8 @@ import cors from 'cors';
 import { config } from './config/env';
 import apiRoutes from './routes';
 
+import { getHealth } from './controllers/health.controller';
+
 const app = express();
 
 // Parse CORS Origins from environment variables (comma-separated if multiple)
@@ -28,6 +30,11 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Direct health check routes for reliable cloud health probes and API endpoints
+app.get('/api/health', getHealth);
+app.get('/health', getHealth);
+app.get('/', getHealth);
 
 // Mount API routes under /api
 app.use('/api', apiRoutes);
