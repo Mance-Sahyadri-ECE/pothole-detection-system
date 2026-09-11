@@ -26,7 +26,7 @@ export const INITIAL_COMPLAINTS: Complaint[] = [
     longitude: 74.8742,
     description: 'Heavy crater forming on the left lane towards Bantwal. Causing traffic jams.',
     severityEstimate: 'SEVERE',
-    imageUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
     submittedAt: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
     status: 'IN PROGRESS',
     linkedPotholeId: 'PTH-002',

@@ -83,7 +83,7 @@ async function seedDatabase() {
       (
         'PTH-002', 12.8979, 74.8742, 'NH 73 Adyar Bridge Approach', 'NH-73 Highway', 'Adyar, Mangaluru',
         'SEVERE', 0.942, 'CRITICAL', 'REPAIR IN PROGRESS', 'Pothole Patrol Robot 01', NOW() - INTERVAL '4 hours',
-        'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
         'HIGH', 70.0, 50.0, 10.0, 0.35, 1, 'National Highway Authority (NHAI)', 'Er. Suresh Kumar (NHAI)',
         '{"x": 140, "y": 95, "width": 200, "height": 160}'::jsonb, TRUE
       ),

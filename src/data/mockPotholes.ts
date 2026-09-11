@@ -56,7 +56,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
     status: 'REPAIR IN PROGRESS',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(), // 3 hours ago
-    imageUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
     trafficLevel: 'HIGH',
     estimatedDimensions: {
       lengthCm: 80,
