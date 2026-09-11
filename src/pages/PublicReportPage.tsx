@@ -23,22 +23,54 @@ export const PublicReportPage: React.FC = () => {
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
   const handleUseCurrentLocation = () => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          setLatitude(Number(pos.coords.latitude.toFixed(6)));
-          setLongitude(Number(pos.coords.longitude.toFixed(6)));
-        },
-        () => {
-          setLatitude(SAHYADRI_COORDINATES.lat);
-          setLongitude(SAHYADRI_COORDINATES.lng);
-        }
-      );
-    } else {
-      setLatitude(SAHYADRI_COORDINATES.lat);
-      setLongitude(SAHYADRI_COORDINATES.lng);
+    if (!('geolocation' in navigator)) {
+      setLocationError('Geolocation is not supported by your browser.');
+      return;
     }
+
+    setLocationLoading(true);
+    setLocationStatus('Getting location...');
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = Number(pos.coords.latitude.toFixed(6));
+        const lng = Number(pos.coords.longitude.toFixed(6));
+        setLatitude(lat);
+        setLongitude(lng);
+        setLocationLoading(false);
+        setLocationStatus('Location detected');
+        setLocationError(null);
+      },
+      (err) => {
+        setLocationLoading(false);
+        setLocationStatus(null);
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setLocationError('Permission denied. Please allow location access in your browser settings.');
+            break;
+          case err.POSITION_UNAVAILABLE:
+            setLocationError('Location position unavailable. Please try again.');
+            break;
+          case err.TIMEOUT:
+            setLocationError('Location request timed out. Please try again.');
+            break;
+          default:
+            setLocationError('Unable to retrieve location.');
+            break;
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -181,11 +213,26 @@ export const PublicReportPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleUseCurrentLocation}
-                  className="text-xs font-semibold text-blue-700 hover:underline"
+                  disabled={locationLoading}
+                  className="text-xs font-semibold text-blue-700 hover:underline disabled:opacity-50"
                 >
-                  Use My Current Location
+                  {locationLoading ? 'Getting location...' : 'Use My Current Location'}
                 </button>
               </div>
+
+              {locationStatus && (
+                <div className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>{locationStatus}</span>
+                </div>
+              )}
+
+              {locationError && (
+                <div className="text-[11px] text-rose-700 font-medium flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  <span>{locationError}</span>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
                 <div>
