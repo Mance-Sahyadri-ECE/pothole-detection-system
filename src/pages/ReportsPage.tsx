@@ -9,12 +9,16 @@ import { Search } from 'lucide-react';
 export const ReportsPage: React.FC = () => {
   const { potholes, setSelectedPothole } = usePotholes();
 
+  const [activeLedgerTab, setActiveLedgerTab] = useState<'DEFECTS' | 'OBSERVATIONS'>('DEFECTS');
   const [searchQuery, setSearchQuery] = useState('');
   const [severityFilter, setSeverityFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [priorityFilter, setPriorityFilter] = useState<string>('ALL');
 
   const filtered = potholes.filter(p => {
+    if (activeLedgerTab === 'DEFECTS' && p.severity === 'NORMAL') return false;
+    if (activeLedgerTab === 'OBSERVATIONS' && p.severity !== 'NORMAL') return false;
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const match =
@@ -39,10 +43,10 @@ export const ReportsPage: React.FC = () => {
       <div className="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-bold text-slate-900 tracking-tight">
-            Pothole Reports
+            Pothole Reports & Road Condition Logs
           </h1>
           <p className="text-xs text-slate-500 font-mono">
-            {potholes.length} total logged detections • Official audit ledger
+            {potholes.filter(p => p.severity !== 'NORMAL').length} defect reports • {potholes.filter(p => p.severity === 'NORMAL').length} normal surface logs
           </p>
         </div>
 
@@ -60,6 +64,36 @@ export const ReportsPage: React.FC = () => {
             Export JSON
           </button>
         </div>
+      </div>
+
+      {/* Category Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 text-xs font-medium">
+        <button
+          onClick={() => {
+            setActiveLedgerTab('DEFECTS');
+            setSeverityFilter('ALL');
+          }}
+          className={`px-3 py-1.5 rounded transition-colors ${
+            activeLedgerTab === 'DEFECTS'
+              ? 'bg-slate-900 text-white font-semibold'
+              : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+          }`}
+        >
+          Pothole Defect Reports ({potholes.filter(p => p.severity !== 'NORMAL').length})
+        </button>
+        <button
+          onClick={() => {
+            setActiveLedgerTab('OBSERVATIONS');
+            setSeverityFilter('ALL');
+          }}
+          className={`px-3 py-1.5 rounded transition-colors ${
+            activeLedgerTab === 'OBSERVATIONS'
+              ? 'bg-slate-900 text-white font-semibold'
+              : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+          }`}
+        >
+          Road Condition Observations ({potholes.filter(p => p.severity === 'NORMAL').length})
+        </button>
       </div>
 
       {/* Filter and search row */}
@@ -83,8 +117,9 @@ export const ReportsPage: React.FC = () => {
           >
             <option value="ALL">Severity: All</option>
             <option value="SEVERE">Severe</option>
+            <option value="HIGH">High</option>
             <option value="MODERATE">Moderate</option>
-            <option value="NORMAL">Normal</option>
+            <option value="NORMAL">Normal / Safe</option>
           </select>
         </div>
 

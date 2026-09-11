@@ -21,14 +21,12 @@ export const DAKSHINA_KANNADA_BOUNDS = {
 };
 
 export const LOCAL_ROADS = [
-  { name: 'Sahyadri Campus Main Road', area: 'Adyar, Mangaluru', baseLat: 12.9004, baseLng: 74.8700 },
-  { name: 'NH 73 Mangaluru-Bantwal Highway', area: 'Adyar Junction', baseLat: 12.8980, baseLng: 74.8745 },
-  { name: 'Valachil Access Road', area: 'Valachil, Mangaluru', baseLat: 12.8942, baseLng: 74.8820 },
-  { name: 'Farangipete Bypass', area: 'Farangipete, Dakshina Kannada', baseLat: 12.8870, baseLng: 74.8950 },
-  { name: 'Netravati Riverbank Road', area: 'Adyar Riverview', baseLat: 12.8920, baseLng: 74.8650 },
-  { name: 'Pumpwell Circle Connector', area: 'Pumpwell, Mangaluru', baseLat: 12.8680, baseLng: 74.8560 },
-  { name: 'Kankanady Bypass Road', area: 'Kankanady, Mangaluru', baseLat: 12.8640, baseLng: 74.8520 },
-  { name: 'Arkula Industrial Link Road', area: 'Arkula, Mangaluru', baseLat: 12.9050, baseLng: 74.8880 }
+  { name: 'Sahyadri Campus Access Road', area: 'Adyar, Mangaluru', baseLat: 12.8650, baseLng: 74.9257 },
+  { name: 'NH 73 Mangaluru-Bantwal Highway', area: 'Adyar Junction', baseLat: 12.8665, baseLng: 74.9280 },
+  { name: 'Valachil Access Road', area: 'Valachil, Mangaluru', baseLat: 12.8682, baseLng: 74.9310 },
+  { name: 'Farangipete Bypass', area: 'Farangipete, Dakshina Kannada', baseLat: 12.8710, baseLng: 74.9390 },
+  { name: 'Netravati Riverbank Road', area: 'Adyar Riverview', baseLat: 12.8630, baseLng: 74.9210 },
+  { name: 'Arkula Industrial Link Road', area: 'Arkula, Mangaluru', baseLat: 12.8750, baseLng: 74.9350 }
 ];
 
 export function getRandomRoadPoint(): { roadName: string; area: string; lat: number; lng: number } {

@@ -348,33 +348,55 @@ export const AiDetectionPage: React.FC = () => {
               <table className="w-full border border-slate-200">
                 <tbody className="divide-y divide-slate-100 font-mono">
                   <tr>
-                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Pothole Detected</td>
-                    <td className="py-2 px-3 font-bold text-slate-900">
-                      {result.potholeDetected ? `YES (${result.detections?.length || 1} detected)` : 'NO'}
+                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Pothole Detection</td>
+                    <td className="py-2 px-3 font-bold">
+                      {result.potholeDetected ? (
+                        <span className="text-red-700 font-mono">YES ({result.detections?.length || 1} defect detected)</span>
+                      ) : (
+                        <span className="text-emerald-700 font-mono">NO (Normal Road Surface)</span>
+                      )}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Severity Class</td>
-                    <td className="py-2 px-3 font-bold text-slate-900">{result.severity}</td>
+                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Condition Class</td>
+                    <td className="py-2 px-3 font-bold text-slate-900">
+                      {result.potholeDetected ? result.severity : 'Normal Surface'}
+                    </td>
                   </tr>
                   <tr>
-                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">YOLO Confidence</td>
+                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">AI Confidence</td>
                     <td className="py-2 px-3 font-bold text-slate-900">
                       {result.confidence > 0 ? formatConfidence(result.confidence) : 'N/A'}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Estimated Damage</td>
-                    <td className="py-2 px-3 font-sans text-slate-800">{result.estimatedDamage}</td>
+                    <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Severity Level</td>
+                    <td className="py-2 px-3 font-sans text-slate-800">
+                      {result.potholeDetected ? result.severity : 'None'}
+                    </td>
                   </tr>
                   <tr>
                     <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Repair Priority</td>
-                    <td className="py-2 px-3"><PriorityBadge priority={result.repairPriority} /></td>
+                    <td className="py-2 px-3">
+                      {result.potholeDetected ? (
+                        <PriorityBadge priority={result.repairPriority} />
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded text-[11px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          None / Low
+                        </span>
+                      )}
+                    </td>
                   </tr>
                   {result.riskScore !== undefined && (
                     <tr>
                       <td className="py-2 px-3 bg-slate-50 text-slate-500 font-sans">Calculated Risk Index</td>
-                      <td className="py-2 px-3 font-bold text-slate-900">{result.riskScore} / 100</td>
+                      <td className="py-2 px-3 font-bold font-mono">
+                        {result.potholeDetected ? (
+                          <span className="text-red-700">{result.riskScore} / 100</span>
+                        ) : (
+                          <span className="text-emerald-700">{result.riskScore} / 100 (Safe)</span>
+                        )}
+                      </td>
                     </tr>
                   )}
                   <tr>

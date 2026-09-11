@@ -18,6 +18,12 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, severity, size
             Severe
           </span>
         );
+      case 'HIGH':
+        return (
+          <span className={`inline-block font-mono font-medium rounded-sm border border-orange-300 bg-orange-50 text-orange-800 ${sizeClass}`}>
+            High
+          </span>
+        );
       case 'MODERATE':
         return (
           <span className={`inline-block font-mono font-medium rounded-sm border border-amber-300 bg-amber-50 text-amber-800 ${sizeClass}`}>
@@ -27,7 +33,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, severity, size
       case 'NORMAL':
         return (
           <span className={`inline-block font-mono font-medium rounded-sm border border-emerald-300 bg-emerald-50 text-emerald-700 ${sizeClass}`}>
-            Normal
+            Normal / Safe
           </span>
         );
     }

@@ -19,29 +19,23 @@ export function calculatePriority(
   trafficLevel: TrafficLevel = 'NORMAL',
   complaintCount: number = 0
 ): PriorityLevel {
-  let basePriority: PriorityLevel = 'LOW';
+  if (severity === 'NORMAL') {
+    return 'NONE';
+  }
+
+  let basePriority: PriorityLevel = 'MEDIUM';
 
   if (severity === 'SEVERE') {
-    if (trafficLevel === 'HIGH') {
-      basePriority = 'CRITICAL';
-    } else {
-      basePriority = 'HIGH';
-    }
+    basePriority = trafficLevel === 'HIGH' ? 'CRITICAL' : 'HIGH';
+  } else if (severity === 'HIGH') {
+    basePriority = 'HIGH';
   } else if (severity === 'MODERATE') {
-    if (trafficLevel === 'HIGH') {
-      basePriority = 'HIGH';
-    } else {
-      basePriority = 'MEDIUM';
-    }
-  } else {
-    // NORMAL
-    basePriority = 'LOW';
+    basePriority = trafficLevel === 'HIGH' ? 'HIGH' : 'MEDIUM';
   }
 
   // Escalation if citizen complaints are high
   if (complaintCount >= 3) {
-    if (basePriority === 'LOW') basePriority = 'MEDIUM';
-    else if (basePriority === 'MEDIUM') basePriority = 'HIGH';
+    if (basePriority === 'MEDIUM') basePriority = 'HIGH';
     else if (basePriority === 'HIGH') basePriority = 'CRITICAL';
   }
 
@@ -49,13 +43,16 @@ export function calculatePriority(
 }
 
 export function getRecommendedAction(severity: SeverityLevel, priority: PriorityLevel): string {
+  if (severity === 'NORMAL' || priority === 'NONE') {
+    return 'Road surface in optimal condition. No repair action required.';
+  }
   if (priority === 'CRITICAL' || severity === 'SEVERE') {
     return 'Immediate emergency inspection & road barrier deployment required within 4 hours.';
   }
-  if (priority === 'HIGH') {
-    return 'Schedule cold-mix asphalt patching within 24-48 hours.';
+  if (priority === 'HIGH' || severity === 'HIGH') {
+    return 'Schedule cold-mix asphalt patching within 24 hours.';
   }
-  if (priority === 'MEDIUM') {
+  if (priority === 'MEDIUM' || severity === 'MODERATE') {
     return 'Add to standard weekly municipality maintenance schedule.';
   }
   return 'Routine road surface monitoring; no urgent repair needed.';

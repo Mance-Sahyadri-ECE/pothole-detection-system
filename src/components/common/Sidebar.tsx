@@ -34,12 +34,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
     { to: '/report', label: 'Report Pothole', icon: AlertCircle },
     { to: '/about', label: 'About System', icon: Info },
     { to: '/status', label: 'System Status', icon: Activity },
-    { to: '/login', label: 'Engineer Portal', icon: Lock }
+    { to: '/public-status', label: 'Public Government Status', icon: FileText }
   ];
 
   const govtNavItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/map', label: 'Live Map', icon: Map },
+    { to: '/government/map', label: 'Live Map', icon: Map },
     { to: '/robot', label: 'Robot Monitoring', icon: Cpu },
     { to: '/ai-detect', label: 'AI Detection', icon: ScanLine },
     { to: '/reports', label: 'Pothole Reports', icon: FileText },
@@ -47,7 +47,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
     { to: '/complaints', label: 'Complaints Queue', icon: AlertCircle },
     { to: '/repairs', label: 'Repair Management', icon: Wrench },
     { to: '/analytics', label: 'Analytics', icon: BarChart2 },
-    { to: '/settings', label: 'Settings', icon: Settings }
+    { to: '/settings', label: 'Settings', icon: Settings },
+    { to: '/engineer-portal', label: 'Engineer Portal', icon: Wrench }
   ];
 
   return (

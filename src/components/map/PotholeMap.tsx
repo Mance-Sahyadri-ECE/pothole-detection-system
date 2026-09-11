@@ -28,13 +28,15 @@ const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ c
 };
 
 const createMarkerIcon = (pothole: Pothole) => {
-  let bgColor = '#dc2626'; // RED: Critical / Severe
+  let bgColor = '#dc2626'; // RED: Severe / Critical Pothole
   if (pothole.status === 'REPAIRED') {
-    bgColor = '#16a34a'; // GREEN: Repaired
-  } else if (pothole.priority === 'HIGH') {
-    bgColor = '#ea580c'; // ORANGE: High
+    bgColor = '#0d9488'; // TEAL/GREEN: Repaired Location
+  } else if (pothole.severity === 'NORMAL' || pothole.priority === 'NONE') {
+    bgColor = '#16a34a'; // GREEN: Normal / Safe Road Surface
+  } else if (pothole.priority === 'HIGH' || pothole.severity === 'HIGH') {
+    bgColor = '#ea580c'; // ORANGE: High-Severity Damage
   } else if (pothole.severity === 'MODERATE') {
-    bgColor = '#eab308'; // YELLOW: Moderate
+    bgColor = '#eab308'; // YELLOW: Moderate Damage
   }
 
   const html = `
@@ -125,7 +127,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
   const { potholes, setSelectedPothole } = usePotholes();
   const { robotStatus } = useRobot();
 
-  const [activeFilter, setActiveFilter] = useState<'ALL' | 'CRITICAL' | 'HIGH' | 'MODERATE' | 'REPAIRED'>('ALL');
+  const [activeFilter, setActiveFilter] = useState<'ALL' | 'NORMAL' | 'MODERATE' | 'HIGH' | 'SEVERE' | 'REPAIRED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [mapCenter, setMapCenter] = useState<[number, number]>([SAHYADRI_COORDINATES.lat, SAHYADRI_COORDINATES.lng]);
   const [zoomLevel, setZoomLevel] = useState(14);
@@ -141,9 +143,10 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
       if (!match) return false;
     }
 
-    if (activeFilter === 'CRITICAL') return (p.priority === 'CRITICAL' || p.severity === 'SEVERE') && p.status !== 'REPAIRED';
-    if (activeFilter === 'HIGH') return p.priority === 'HIGH' && p.status !== 'REPAIRED';
+    if (activeFilter === 'NORMAL') return p.severity === 'NORMAL';
     if (activeFilter === 'MODERATE') return p.severity === 'MODERATE' && p.status !== 'REPAIRED';
+    if (activeFilter === 'HIGH') return (p.severity === 'HIGH' || p.priority === 'HIGH') && p.status !== 'REPAIRED';
+    if (activeFilter === 'SEVERE') return (p.severity === 'SEVERE' || p.priority === 'CRITICAL') && p.status !== 'REPAIRED';
     if (activeFilter === 'REPAIRED') return p.status === 'REPAIRED';
     return true;
   });
@@ -156,7 +159,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
           {/* Filters */}
           <div className="flex items-center gap-1.5 font-medium">
             <span className="text-slate-500 mr-1">Filter:</span>
-            {(['ALL', 'CRITICAL', 'HIGH', 'MODERATE', 'REPAIRED'] as const).map(filter => (
+            {(['ALL', 'NORMAL', 'MODERATE', 'HIGH', 'SEVERE', 'REPAIRED'] as const).map(filter => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
@@ -287,42 +290,83 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
               icon={createMarkerIcon(pothole)}
             >
               <Popup className="custom-leaflet-popup">
-                <div className="space-y-2 text-xs min-w-[230px] max-w-[270px] font-sans">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-slate-900">{pothole.id}</span>
-                    <StatusBadge severity={pothole.severity} />
-                  </div>
-
-                  {pothole.imageUrl && (
-                    <div className="w-full h-24 rounded overflow-hidden bg-slate-100 border border-slate-200">
-                      <img
-                        src={pothole.imageUrl}
-                        alt={pothole.id}
-                        className="w-full h-full object-cover"
-                      />
+                {pothole.severity === 'NORMAL' ? (
+                  <div className="space-y-2 text-xs min-w-[230px] max-w-[270px] font-sans">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-1">
+                      <span className="font-mono font-bold text-slate-900">{pothole.id}</span>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        NORMAL / SAFE
+                      </span>
                     </div>
-                  )}
 
-                  <div>
-                    <div className="font-semibold text-slate-900 leading-snug">{pothole.location}</div>
-                    <div className="text-[11px] text-slate-500">{pothole.area}</div>
+                    {pothole.imageUrl && (
+                      <div className="w-full h-24 rounded overflow-hidden bg-slate-100 border border-slate-200">
+                        <img
+                          src={pothole.imageUrl}
+                          alt={pothole.id}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="font-semibold text-slate-900 leading-snug">Road Inspection</div>
+                      <div className="text-[11px] text-emerald-700 font-semibold">No pothole detected</div>
+                      <div className="text-[11px] text-slate-500">{pothole.location}</div>
+                    </div>
+
+                    <div className="font-mono text-[10px] bg-slate-50 p-1.5 rounded border border-slate-200 space-y-0.5 text-slate-700">
+                      <div>GPS: {pothole.latitude.toFixed(5)}, {pothole.longitude.toFixed(5)}</div>
+                      <div>AI Confidence: {formatConfidence(pothole.confidence)}</div>
+                      <div>Status: Safe / No Defect</div>
+                      <div>Inspected: {new Date(pothole.detectedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedPothole(pothole)}
+                      className="w-full py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
+                    >
+                      View Details
+                    </button>
                   </div>
+                ) : (
+                  <div className="space-y-2 text-xs min-w-[230px] max-w-[270px] font-sans">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-slate-900">{pothole.id}</span>
+                      <StatusBadge severity={pothole.severity} />
+                    </div>
 
-                  <div className="font-mono text-[10px] bg-slate-50 p-1.5 rounded border border-slate-200 space-y-0.5 text-slate-700">
-                    <div>GPS: {pothole.latitude.toFixed(5)}, {pothole.longitude.toFixed(5)}</div>
-                    <div>AI Confidence: {formatConfidence(pothole.confidence)}</div>
-                    <div>Priority: {pothole.priority}</div>
-                    <div>Status: {pothole.status}</div>
-                    <div>Detected: {new Date(pothole.detectedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    {pothole.imageUrl && (
+                      <div className="w-full h-24 rounded overflow-hidden bg-slate-100 border border-slate-200">
+                        <img
+                          src={pothole.imageUrl}
+                          alt={pothole.id}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="font-semibold text-slate-900 leading-snug">{pothole.location}</div>
+                      <div className="text-[11px] text-slate-500">{pothole.area}</div>
+                    </div>
+
+                    <div className="font-mono text-[10px] bg-slate-50 p-1.5 rounded border border-slate-200 space-y-0.5 text-slate-700">
+                      <div>GPS: {pothole.latitude.toFixed(5)}, {pothole.longitude.toFixed(5)}</div>
+                      <div>AI Confidence: {formatConfidence(pothole.confidence)}</div>
+                      <div>Priority: {pothole.priority}</div>
+                      <div>Status: {pothole.status}</div>
+                      <div>Detected: {new Date(pothole.detectedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedPothole(pothole)}
+                      className="w-full py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
+                    >
+                      View Details
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => setSelectedPothole(pothole)}
-                    className="w-full py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
-                  >
-                    View Details
-                  </button>
-                </div>
+                )}
               </Popup>
             </Marker>
           ))}

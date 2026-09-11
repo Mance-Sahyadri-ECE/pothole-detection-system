@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import healthRoutes from './health.routes';
+import authRoutes from './auth.routes';
 import potholeRoutes from './pothole.routes';
 import complaintRoutes from './complaint.routes';
 import notificationRoutes from './notification.routes';
@@ -12,6 +13,7 @@ const router = Router();
 router.use('/', healthRoutes);
 
 // Feature REST endpoints
+router.use('/auth', authRoutes);
 router.use('/ai', aiRoutes);
 router.use('/potholes', potholeRoutes);
 router.use('/complaints', complaintRoutes);

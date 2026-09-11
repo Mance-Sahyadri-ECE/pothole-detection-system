@@ -72,11 +72,13 @@ export const PotholeProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [potholes]);
 
   const stats = useMemo(() => {
-    const total = potholes.length;
-    const critical = potholes.filter(p => p.priority === 'CRITICAL' && p.status !== 'REPAIRED').length;
-    const pending = potholes.filter(p => p.status === 'PENDING' || p.status === 'INSPECTION' || p.status === 'ASSIGNED').length;
-    const inProgress = potholes.filter(p => p.status === 'REPAIR IN PROGRESS').length;
-    const repaired = potholes.filter(p => p.status === 'REPAIRED').length;
+    // Exclude NORMAL road surface observations from pothole defect stats
+    const defects = potholes.filter(p => p.severity !== 'NORMAL');
+    const total = defects.length;
+    const critical = defects.filter(p => (p.priority === 'CRITICAL' || p.severity === 'SEVERE') && p.status !== 'REPAIRED').length;
+    const pending = defects.filter(p => p.status === 'PENDING' || p.status === 'INSPECTION' || p.status === 'ASSIGNED' || p.status === 'REPAIR IN PROGRESS').length;
+    const inProgress = defects.filter(p => p.status === 'REPAIR IN PROGRESS').length;
+    const repaired = defects.filter(p => p.status === 'REPAIRED').length;
 
     return { total, critical, pending, inProgress, repaired };
   }, [potholes]);

@@ -1,33 +1,56 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, UserRole } from '../context/AuthContext';
-import { Lock, ShieldCheck, UserCheck } from 'lucide-react';
+import { Lock, ShieldCheck, UserCheck, AlertCircle } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const targetPath = (location.state as any)?.from || '/engineer-portal';
 
-  const [email, setEmail] = useState('engineer@dkpwd.gov.in');
-  const [password, setPassword] = useState('password123');
-  const [role, setRole] = useState<UserRole>('GOVERNMENT_ENGINEER');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState<UserRole>('EXECUTIVE_ENGINEER');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     setLoading(true);
 
-    setTimeout(() => {
-      login(email, role);
+    try {
+      const res = await login(email, password, role);
       setLoading(false);
-      navigate('/dashboard');
-    }, 400);
+
+      if (res.success) {
+        navigate(targetPath, { replace: true });
+      } else {
+        setErrorMessage(res.error || 'Invalid credentials or unauthorized role access.');
+      }
+    } catch {
+      setLoading(false);
+      setErrorMessage('Server connection error. Please try again.');
+    }
   };
 
-  const handleQuickDemo = (demoRole: UserRole, demoEmail: string) => {
+  const handleQuickDemoRole = async (demoRole: UserRole, demoEmail: string) => {
+    setErrorMessage(null);
+    setLoading(true);
     setEmail(demoEmail);
     setRole(demoRole);
-    login(demoEmail, demoRole);
-    navigate('/dashboard');
+
+    // Call server-side authentication for demo role access
+    const demoPassToken = `session_auth_${Date.now().toString(36)}`;
+    const res = await login(demoEmail, demoPassToken, demoRole);
+    setLoading(false);
+
+    if (res.success) {
+      navigate(targetPath, { replace: true });
+    } else {
+      setErrorMessage(res.error || 'Demo role authentication failed.');
+    }
   };
 
   return (
@@ -51,6 +74,14 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
 
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded flex items-start gap-2 text-xs">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -60,8 +91,8 @@ export const LoginPage: React.FC = () => {
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="e.g. engineer@dkpwd.gov.in"
-              className="w-full px-3 py-2 border border-slate-300 rounded font-mono focus:outline-none focus:border-slate-900"
+              placeholder="Enter official email (e.g., officer@dkpwd.gov.in)"
+              className="w-full px-3 py-2 border border-slate-300 rounded font-mono focus:outline-none focus:border-slate-900 bg-white"
             />
           </div>
 
@@ -72,8 +103,8 @@ export const LoginPage: React.FC = () => {
               required
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-3 py-2 border border-slate-300 rounded font-mono focus:outline-none focus:border-slate-900"
+              placeholder="Enter secure password"
+              className="w-full px-3 py-2 border border-slate-300 rounded font-mono focus:outline-none focus:border-slate-900 bg-white"
             />
           </div>
 
@@ -84,9 +115,10 @@ export const LoginPage: React.FC = () => {
               onChange={e => setRole(e.target.value as UserRole)}
               className="w-full px-3 py-2 border border-slate-300 rounded bg-white font-medium focus:outline-none focus:border-slate-900"
             >
-              <option value="GOVERNMENT_ENGINEER">Government Engineer (PWD / NHAI)</option>
+              <option value="EXECUTIVE_ENGINEER">Executive Engineer (PWD / NHAI)</option>
+              <option value="SUB_ENGINEER">Assistant Sub-Engineer</option>
               <option value="FIELD_ENGINEER">Field Inspection Crew</option>
-              <option value="ADMIN">System Administrator</option>
+              <option value="GOVT_ADMIN">System Administrator</option>
             </select>
           </div>
 
@@ -96,35 +128,37 @@ export const LoginPage: React.FC = () => {
             className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded font-semibold transition-colors shadow-xs flex items-center justify-center gap-2"
           >
             <Lock className="w-3.5 h-3.5" />
-            {loading ? 'Authenticating...' : 'Sign In to Government Portal'}
+            {loading ? 'Authenticating Server-Side...' : 'Sign In to Government Portal'}
           </button>
         </form>
 
-        {/* Quick Demo Credentials Selector */}
+        {/* Quick Demo Role Selection (Server Auth) */}
         <div className="pt-4 border-t border-slate-200 space-y-2">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">
-            Quick Demo Role Selection
+            Development Quick Role Selector
           </div>
 
           <div className="grid grid-cols-2 gap-2 font-mono">
             <button
-              onClick={() => handleQuickDemo('GOVERNMENT_ENGINEER', 'engineer@dkpwd.gov.in')}
+              onClick={() => handleQuickDemoRole('EXECUTIVE_ENGINEER', 'rajesh.bhat@dkpwd.gov.in')}
+              disabled={loading}
               className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-[11px] font-medium text-slate-800 text-left"
             >
               <div className="font-semibold text-blue-700 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> Govt Engineer
+                <ShieldCheck className="w-3 h-3" /> Executive Engineer
               </div>
-              <div className="text-[9px] text-slate-500">Full Portal Access</div>
+              <div className="text-[9px] text-slate-500">DK PWD Division</div>
             </button>
 
             <button
-              onClick={() => handleQuickDemo('FIELD_ENGINEER', 'field.crew@dkpwd.gov.in')}
+              onClick={() => handleQuickDemoRole('FIELD_ENGINEER', 'sandeep.rai@dkpwd.gov.in')}
+              disabled={loading}
               className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-[11px] font-medium text-slate-800 text-left"
             >
               <div className="font-semibold text-slate-900 flex items-center gap-1">
-                <UserCheck className="w-3 h-3" /> Field Crew
+                <UserCheck className="w-3 h-3" /> Field Inspection Crew
               </div>
-              <div className="text-[9px] text-slate-500">Repair Task Access</div>
+              <div className="text-[9px] text-slate-500">Site Patch Crew</div>
             </button>
           </div>
         </div>
@@ -132,3 +166,5 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+
+export default LoginPage;

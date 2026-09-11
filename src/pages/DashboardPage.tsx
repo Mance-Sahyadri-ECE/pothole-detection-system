@@ -11,21 +11,27 @@ export const DashboardPage: React.FC = () => {
   const { stats, potholes } = usePotholes();
   const { notifications } = useNotifications();
 
-  // Dynamic statistics with base reference counts matching municipal dashboard expectations
-  const totalDetected = Math.max(128, stats.total);
-  const criticalCount = Math.max(18, stats.critical);
-  const pendingCount = Math.max(47, stats.pending);
-  const repairedCount = Math.max(63, stats.repaired);
+  // Road condition category breakdown
+  const totalConditions = potholes.length;
+  const normalCount = potholes.filter(p => p.severity === 'NORMAL').length;
+  const moderateCount = potholes.filter(p => p.severity === 'MODERATE' && p.status !== 'REPAIRED').length;
+  const highCount = potholes.filter(p => (p.severity === 'HIGH' || p.priority === 'HIGH') && p.status !== 'REPAIRED').length;
+  const severeCount = potholes.filter(p => (p.severity === 'SEVERE' || p.priority === 'CRITICAL') && p.status !== 'REPAIRED').length;
+  const pendingCount = stats.pending;
+  const repairedCount = stats.repaired;
   const activeRobots = 2;
-  const govtAlertsCount = Math.max(24, notifications.length);
+  const govtAlertsCount = notifications.length;
 
   const statBlocks = [
-    { label: 'TOTAL DETECTED', value: totalDetected, note: 'Dakshina Kannada' },
-    { label: 'CRITICAL', value: criticalCount, note: 'Immediate hazard', textCol: 'text-red-700' },
+    { label: 'TOTAL CONDITIONS', value: totalConditions, note: 'Dakshina Kannada' },
+    { label: 'NORMAL ROADS', value: normalCount, note: 'Monitored safe', textCol: 'text-emerald-700' },
+    { label: 'MODERATE', value: moderateCount, note: 'Minor cracks', textCol: 'text-amber-700' },
+    { label: 'HIGH SEVERITY', value: highCount, note: 'Road damage', textCol: 'text-orange-700' },
+    { label: 'SEVERE / CRITICAL', value: severeCount, note: 'Immediate hazard', textCol: 'text-red-700' },
     { label: 'PENDING REPAIR', value: pendingCount, note: 'Awaiting crew' },
-    { label: 'REPAIRED', value: repairedCount, note: 'Certified complete', textCol: 'text-emerald-700' },
+    { label: 'REPAIRED', value: repairedCount, note: 'Certified complete', textCol: 'text-teal-700' },
     { label: 'ACTIVE ROBOTS', value: activeRobots, note: 'Patrol 01 & 02' },
-    { label: 'GOVERNMENT ALERTS', value: govtAlertsCount, note: 'Dispatched to PWD' }
+    { label: 'GOVT ALERTS', value: govtAlertsCount, note: 'Dispatched to PWD' }
   ];
 
   return (
@@ -40,8 +46,8 @@ export const DashboardPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Compact Statistics Row (6 blocks grid) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      {/* Compact Statistics Row (9 blocks grid) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-9 gap-2">
         {statBlocks.map(block => (
           <div
             key={block.label}

@@ -29,6 +29,8 @@ export const RepairManagementPage: React.FC = () => {
   const [assignLoading, setAssignLoading] = useState(false);
 
   const filteredPotholes = potholes.filter(p => {
+    if (p.severity === 'NORMAL') return false; // Normal road observations do not enter repair workflow
+
     const isCitizen = p.source === 'CITIZEN_COMPLAINT' || p.id.startsWith('CMP-');
     if (sourceFilter === 'AI_DETECTION' && isCitizen) return false;
     if (sourceFilter === 'CITIZEN_COMPLAINT' && !isCitizen) return false;

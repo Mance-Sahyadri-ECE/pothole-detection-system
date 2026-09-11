@@ -1,6 +1,6 @@
-export type SeverityLevel = 'NORMAL' | 'MODERATE' | 'SEVERE';
-export type PriorityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-export type PotholeStatus = 'PENDING' | 'INSPECTION' | 'ASSIGNED' | 'REPAIR IN PROGRESS' | 'REPAIRED';
+export type SeverityLevel = 'NORMAL' | 'MODERATE' | 'HIGH' | 'SEVERE';
+export type PriorityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
+export type PotholeStatus = 'PENDING' | 'INSPECTION' | 'ASSIGNED' | 'REPAIR IN PROGRESS' | 'REPAIRED' | 'REJECTED' | 'REOPENED';
 export type TrafficLevel = 'HIGH' | 'MEDIUM' | 'NORMAL' | 'LOW';
 
 export type RobotState = 'ONLINE' | 'OFFLINE' | 'CHARGING' | 'PATROLLING' | 'MAINTENANCE';

@@ -3,8 +3,8 @@ import { Pothole } from '../types';
 export const INITIAL_POTHOLES: Pothole[] = [
   {
     id: 'PTH-001',
-    latitude: 12.9004,
-    longitude: 74.8700,
+    latitude: 12.8650,
+    longitude: 74.9257,
     location: 'Near Sahyadri College Gate 1, Adyar',
     roadName: 'Sahyadri Campus Access Road',
     area: 'Adyar, Mangaluru',
@@ -45,14 +45,14 @@ export const INITIAL_POTHOLES: Pothole[] = [
   },
   {
     id: 'PTH-002',
-    latitude: 12.8982,
-    longitude: 74.8745,
+    latitude: 12.8665,
+    longitude: 74.9280,
     location: 'NH 73 Junction, Opp. Adyar Petrol Pump',
     roadName: 'NH 73 Mangaluru-Bantwal Highway',
     area: 'Adyar Junction',
-    severity: 'SEVERE',
+    severity: 'HIGH',
     confidence: 0.94,
-    priority: 'CRITICAL',
+    priority: 'HIGH',
     status: 'REPAIR IN PROGRESS',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(), // 3 hours ago
@@ -73,7 +73,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
         id: 'RH-002-1',
         timestamp: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
         status: 'PENDING',
-        note: 'AI detected severe deformation on highway lane.',
+        note: 'AI detected significant road surface deformation on highway lane.',
         updatedBy: 'Pothole Patrol Robot 01'
       },
       {
@@ -108,7 +108,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
     area: 'Valachil, Mangaluru',
     severity: 'MODERATE',
     confidence: 0.89,
-    priority: 'HIGH',
+    priority: 'MEDIUM',
     status: 'ASSIGNED',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 320).toISOString(),
@@ -155,47 +155,27 @@ export const INITIAL_POTHOLES: Pothole[] = [
     location: 'Adyar Riverbank Road, Near Netravati Viewpoint',
     roadName: 'Netravati Riverbank Road',
     area: 'Adyar Riverview',
-    severity: 'MODERATE',
-    confidence: 0.91,
-    priority: 'MEDIUM',
+    severity: 'NORMAL',
+    confidence: 0.98,
+    priority: 'NONE',
     status: 'INSPECTION',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 540).toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
     trafficLevel: 'NORMAL',
-    estimatedDimensions: {
-      lengthCm: 38,
-      widthCm: 30,
-      depthCm: 6,
-      areaSqM: 0.11
-    },
-    complaintCount: 1,
+    complaintCount: 0,
     assignedDepartment: 'Mangaluru City Corporation (MCC)',
-    assignedEngineer: 'Er. Anitha Shetty',
-    repairNotes: 'Physical structural depth inspection pending.',
+    repairNotes: 'Routine autonomous road surface inspection. No defect logged.',
     repairHistory: [
       {
         id: 'RH-004-1',
         timestamp: new Date(Date.now() - 1000 * 60 * 540).toISOString(),
-        status: 'PENDING',
-        note: 'Detected during morning riverbank survey route.',
-        updatedBy: 'Pothole Patrol Robot 01'
-      },
-      {
-        id: 'RH-004-2',
-        timestamp: new Date(Date.now() - 1000 * 60 * 210).toISOString(),
         status: 'INSPECTION',
-        note: 'Engineer dispatched for core sample & drainage checks.',
-        updatedBy: 'MCC Control Room'
+        note: 'Normal surface scanned during morning riverbank survey route.',
+        updatedBy: 'Pothole Patrol Robot 01'
       }
     ],
-    governmentNotificationSent: false,
-    boundingBox: {
-      x: 35,
-      y: 40,
-      width: 35,
-      height: 30
-    }
+    governmentNotificationSent: false
   },
   {
     id: 'PTH-005',

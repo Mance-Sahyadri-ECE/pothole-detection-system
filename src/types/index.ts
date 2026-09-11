@@ -1,13 +1,22 @@
-export type SeverityLevel = 'NORMAL' | 'MODERATE' | 'SEVERE';
+export type SeverityLevel = 'NORMAL' | 'MODERATE' | 'HIGH' | 'SEVERE';
 
-export type PriorityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type PriorityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
 
 export type PotholeStatus = 
   | 'PENDING' 
   | 'INSPECTION' 
   | 'ASSIGNED' 
   | 'REPAIR IN PROGRESS' 
-  | 'REPAIRED';
+  | 'REPAIRED'
+  | 'REJECTED'
+  | 'REOPENED';
+
+export type UserRole = 
+  | 'PUBLIC'
+  | 'FIELD_ENGINEER' 
+  | 'SUB_ENGINEER' 
+  | 'EXECUTIVE_ENGINEER' 
+  | 'GOVT_ADMIN';
 
 export type TrafficLevel = 'HIGH' | 'MEDIUM' | 'NORMAL' | 'LOW';
 
@@ -49,6 +58,7 @@ export interface Pothole {
   complaintCount: number;
   assignedDepartment?: string;
   assignedEngineer?: string;
+  contractorCrew?: string;
   repairNotes?: string;
   repairHistory: RepairHistoryItem[];
   governmentNotificationSent: boolean;

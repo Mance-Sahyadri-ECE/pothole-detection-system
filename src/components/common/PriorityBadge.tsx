@@ -34,5 +34,12 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority, size = '
           Low
         </span>
       );
+    case 'NONE':
+    default:
+      return (
+        <span className={`inline-block font-mono font-normal rounded-sm border border-slate-200 bg-slate-50 text-slate-500 ${sizeClass}`}>
+          None
+        </span>
+      );
   }
 };

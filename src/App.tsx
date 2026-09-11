@@ -11,12 +11,15 @@ import { DemoControlBar } from './components/common/DemoControlBar';
 import { ToastContainer } from './components/common/ToastContainer';
 import { PotholeDetailsModal } from './components/potholes/PotholeDetailsModal';
 
+import { ProtectedRoute } from './components/common/ProtectedRoute';
+
 // Public Portal Pages
 import { PublicHomePage } from './pages/PublicHomePage';
 import { PublicMapPage } from './pages/PublicMapPage';
 import { PublicReportPage } from './pages/PublicReportPage';
 import { PublicAboutPage } from './pages/PublicAboutPage';
 import { PublicStatusPage } from './pages/PublicStatusPage';
+import { PublicTransparencyPage } from './pages/PublicTransparencyPage';
 import { LoginPage } from './pages/LoginPage';
 
 // Government Portal Pages
@@ -29,6 +32,7 @@ import { ComplaintBoxPage } from './pages/ComplaintBoxPage';
 import { RepairManagementPage } from './pages/RepairManagementPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { EngineerPortalPage } from './pages/EngineerPortalPage';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -79,24 +83,26 @@ export const App: React.FC = () => {
                   <Route path="/" element={<PublicHomePage />} />
                   <Route path="/map" element={<PublicMapPage />} />
                   <Route path="/report" element={<PublicReportPage />} />
+                  <Route path="/public-status" element={<PublicTransparencyPage />} />
                   <Route path="/about" element={<PublicAboutPage />} />
                   <Route path="/status" element={<PublicStatusPage />} />
                   <Route path="/login" element={<LoginPage />} />
 
-                  {/* Government Portal Routes */}
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/government/dashboard" element={<DashboardPage />} />
-                  <Route path="/government/map" element={<PublicMapPage />} />
-                  <Route path="/robot" element={<RobotMonitoringPage />} />
-                  <Route path="/ai-detect" element={<AiDetectionPage />} />
-                  <Route path="/ai-detection" element={<AiDetectionPage />} />
-                  <Route path="/reports" element={<ReportsPage />} />
-                  <Route path="/notifications" element={<NotificationsPage />} />
-                  <Route path="/complaints" element={<ComplaintBoxPage />} />
-                  <Route path="/government/complaints" element={<ComplaintBoxPage />} />
-                  <Route path="/repairs" element={<RepairManagementPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
+                  {/* Government Portal Routes (Protected) */}
+                  <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                  <Route path="/government/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                  <Route path="/government/map" element={<ProtectedRoute><PublicMapPage /></ProtectedRoute>} />
+                  <Route path="/robot" element={<ProtectedRoute><RobotMonitoringPage /></ProtectedRoute>} />
+                  <Route path="/ai-detect" element={<ProtectedRoute><AiDetectionPage /></ProtectedRoute>} />
+                  <Route path="/ai-detection" element={<ProtectedRoute><AiDetectionPage /></ProtectedRoute>} />
+                  <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                  <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+                  <Route path="/complaints" element={<ProtectedRoute><ComplaintBoxPage /></ProtectedRoute>} />
+                  <Route path="/government/complaints" element={<ProtectedRoute><ComplaintBoxPage /></ProtectedRoute>} />
+                  <Route path="/repairs" element={<ProtectedRoute><RepairManagementPage /></ProtectedRoute>} />
+                  <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                  <Route path="/engineer-portal" element={<ProtectedRoute><EngineerPortalPage /></ProtectedRoute>} />
 
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/" replace />} />

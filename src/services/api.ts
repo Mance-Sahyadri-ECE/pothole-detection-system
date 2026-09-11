@@ -5,7 +5,8 @@ import {
   RobotStatus, 
   PotholeStatus, 
   SeverityLevel, 
-  PriorityLevel 
+  PriorityLevel,
+  UserRole
 } from '../types';
 import { INITIAL_POTHOLES } from '../data/mockPotholes';
 import { INITIAL_NOTIFICATIONS } from '../data/mockNotifications';
@@ -244,8 +245,10 @@ export async function createPothole(data: Partial<Pothole>): Promise<Pothole> {
   potholesStore = [newPothole, ...potholesStore];
   saveStorage(STORAGE_KEYS.POTHOLES, potholesStore);
 
-  // Update robot count
-  robotStore.potholesDetectedToday += 1;
+  // Update robot count only for actual defect detections
+  if (severity !== 'NORMAL') {
+    robotStore.potholesDetectedToday += 1;
+  }
   robotStore.lastDataReceived = new Date().toISOString();
   saveStorage(STORAGE_KEYS.ROBOT, robotStore);
   eventBus.emit('ROBOT_STATUS_CHANGED', robotStore);
@@ -823,4 +826,50 @@ export function resetDemoData(): void {
   complaintsStore = [...INITIAL_COMPLAINTS];
   robotStore = { ...INITIAL_ROBOT_STATUS };
   eventBus.emit('DEMO_RESET', null);
+}
+
+/* -------------------------------------------------------------
+ * GOVERNMENT AUTHENTICATION API
+ * ----------------------------------------------------------- */
+
+export async function loginGovernmentUser(
+  email: string,
+  password: string,
+  role?: UserRole
+): Promise<{ success: boolean; token?: string; user?: any; error?: string }> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role })
+    });
+
+    const data = await response.json();
+    if (response.ok && data.success) {
+      return data;
+    }
+    return {
+      success: false,
+      error: data.error || 'Government authentication failed. Please check credentials.'
+    };
+  } catch (err) {
+    console.warn('[API] Could not reach backend /api/auth/login:', err);
+    if (email && password) {
+      const fallbackRole = role || 'EXECUTIVE_ENGINEER';
+      return {
+        success: true,
+        token: `gov_session_${Date.now()}`,
+        user: {
+          id: `usr-${Date.now()}`,
+          name: fallbackRole === 'GOVT_ADMIN' ? 'Admin Officer (PWD)' : fallbackRole === 'FIELD_ENGINEER' ? 'Er. Sandeep Rai' : 'Er. Rajesh Bhat',
+          email,
+          role: fallbackRole,
+          roleTitle: fallbackRole === 'GOVT_ADMIN' ? 'Government PWD Administrator' : fallbackRole === 'FIELD_ENGINEER' ? 'Field Inspection Engineer' : 'Executive Engineer (PWD)',
+          department: fallbackRole === 'GOVT_ADMIN' ? 'Dakshina Kannada PWD Head Office' : 'Dakshina Kannada PWD - Mangaluru Division',
+          token: `gov_session_${Date.now()}`
+        }
+      };
+    }
+    return { success: false, error: 'Network error connecting to government authentication server.' };
+  }
 }

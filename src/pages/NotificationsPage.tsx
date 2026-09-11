@@ -14,6 +14,7 @@ export const NotificationsPage: React.FC = () => {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const filtered = notifications.filter(n => {
+    if (n.severity === 'NORMAL') return false; // Normal road observations do not generate alerts
     if (activeTab === 'CRITICAL') return n.priority === 'CRITICAL' && !n.resolved;
     if (activeTab === 'RESOLVED') return n.resolved;
     return true;

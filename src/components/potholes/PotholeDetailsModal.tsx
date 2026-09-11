@@ -158,71 +158,86 @@ export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothol
         </div>
 
         {/* Status Actions */}
-        <div className="pt-3 border-t border-slate-200 space-y-2">
-          <div className="text-[11px] font-semibold uppercase text-slate-700">
-            Engineer Actions
+        {pothole.severity === 'NORMAL' ? (
+          <div className="pt-3 border-t border-slate-200 p-2.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 text-xs">
+            <span className="font-bold">Normal Road Segment: </span>
+            This location represents a normal intact road surface. Autonomous monitoring is active. No maintenance action required.
           </div>
+        ) : (
+          <div className="pt-3 border-t border-slate-200 space-y-2">
+            <div className="text-[11px] font-semibold uppercase text-slate-700">
+              Government Engineer Workflow
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input
-              type="text"
-              placeholder="Assign Engineer (e.g. Er. Rajesh Bhat)"
-              value={engineerInput}
-              onChange={e => setEngineerInput(e.target.value)}
-              className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900"
-            />
-            <input
-              type="text"
-              placeholder="Add inspection or repair note..."
-              value={repairNoteInput}
-              onChange={e => setRepairNoteInput(e.target.value)}
-              className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900"
-            />
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="Assign Engineer (e.g. Er. Rajesh Bhat)"
+                value={engineerInput}
+                onChange={e => setEngineerInput(e.target.value)}
+                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900"
+              />
+              <input
+                type="text"
+                placeholder="Add inspection or repair note..."
+                value={repairNoteInput}
+                onChange={e => setRepairNoteInput(e.target.value)}
+                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900"
+              />
+            </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-            {!isRepaired ? (
-              <>
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+              {!isRepaired ? (
+                <>
+                  <button
+                    onClick={() => handleStatusChange('INSPECTION')}
+                    disabled={actionLoading}
+                    className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors"
+                  >
+                    Mark Inspection
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('ASSIGNED')}
+                    disabled={actionLoading}
+                    className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors"
+                  >
+                    Assign Crew
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('REPAIR IN PROGRESS')}
+                    disabled={actionLoading}
+                    className="px-3 py-1 bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-300 rounded font-medium transition-colors"
+                  >
+                    Start Repair
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('REJECTED')}
+                    disabled={actionLoading}
+                    className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium transition-colors"
+                    title="Mark as False Detection or Not a Pothole"
+                  >
+                    Reject False Alarm
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('REPAIRED')}
+                    disabled={actionLoading}
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-semibold transition-colors"
+                  >
+                    Mark Repaired & Certified
+                  </button>
+                </>
+              ) : (
                 <button
-                  onClick={() => handleStatusChange('INSPECTION')}
+                  onClick={() => handleStatusChange('REOPENED')}
                   disabled={actionLoading}
-                  className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors"
+                  className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded font-medium transition-colors"
                 >
-                  Mark Inspection
+                  Reopen Resurfaced Record
                 </button>
-                <button
-                  onClick={() => handleStatusChange('ASSIGNED')}
-                  disabled={actionLoading}
-                  className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors"
-                >
-                  Assign Crew
-                </button>
-                <button
-                  onClick={() => handleStatusChange('REPAIR IN PROGRESS')}
-                  disabled={actionLoading}
-                  className="px-3 py-1 bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-300 rounded font-medium transition-colors"
-                >
-                  Start Repair
-                </button>
-                <button
-                  onClick={() => handleStatusChange('REPAIRED')}
-                  disabled={actionLoading}
-                  className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-semibold transition-colors"
-                >
-                  Mark Repaired & Certified
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => handleStatusChange('PENDING')}
-                disabled={actionLoading}
-                className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded font-medium transition-colors"
-              >
-                Reopen Record
-              </button>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Modal>
   );
