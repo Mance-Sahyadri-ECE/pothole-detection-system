@@ -157,7 +157,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
   const { potholes, setSelectedPothole } = usePotholes();
   const { robotStatus } = useRobot();
 
-  const [activeFilter, setActiveFilter] = useState<'ALL' | 'NORMAL' | 'MODERATE' | 'HIGH' | 'SEVERE' | 'REPAIRED'>('ALL');
+  const [activeFilter, setActiveFilter] = useState<'ALL' | 'NORMAL' | 'MODERATE' | 'SEVERE'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchTrigger, setSearchTrigger] = useState(0);
 
@@ -173,9 +173,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
       ALL: potholes.length,
       NORMAL: potholes.filter(p => getEffectiveSeverity(p) === 'NORMAL').length,
       MODERATE: potholes.filter(p => getEffectiveSeverity(p) === 'MODERATE').length,
-      HIGH: potholes.filter(p => getEffectiveSeverity(p) === 'HIGH').length,
       SEVERE: potholes.filter(p => getEffectiveSeverity(p) === 'SEVERE').length,
-      REPAIRED: potholes.filter(p => p.status === 'REPAIRED').length,
     };
   }, [potholes]);
 
@@ -185,9 +183,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
       const effSev = getEffectiveSeverity(p);
       if (activeFilter === 'NORMAL' && effSev !== 'NORMAL') return false;
       if (activeFilter === 'MODERATE' && effSev !== 'MODERATE') return false;
-      if (activeFilter === 'HIGH' && effSev !== 'HIGH') return false;
       if (activeFilter === 'SEVERE' && effSev !== 'SEVERE') return false;
-      if (activeFilter === 'REPAIRED' && p.status !== 'REPAIRED') return false;
 
       // Text search filter
       if (searchQuery.trim()) {
@@ -212,10 +208,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    setCenterTarget(null);
-    setSearchTrigger(prev => prev + 1);
+    setSearchQuery(e.target.value);
   };
 
   const handleCenterMap = () => {
@@ -240,7 +233,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
           {/* Dynamic Severity & Status Filters */}
           <div className="flex items-center gap-1.5 font-medium flex-wrap">
             <span className="text-slate-500 mr-1">Filter:</span>
-            {(['ALL', 'NORMAL', 'MODERATE', 'HIGH', 'SEVERE', 'REPAIRED'] as const).map(filter => (
+            {(['ALL', 'NORMAL', 'MODERATE', 'SEVERE'] as const).map(filter => (
               <button
                 key={filter}
                 onClick={() => {
@@ -260,11 +253,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
                   ? `Normal (${filterCounts.NORMAL})`
                   : filter === 'MODERATE'
                   ? `Moderate (${filterCounts.MODERATE})`
-                  : filter === 'HIGH'
-                  ? `High (${filterCounts.HIGH})`
-                  : filter === 'SEVERE'
-                  ? `Severe (${filterCounts.SEVERE})`
-                  : `Repaired (${filterCounts.REPAIRED})`}
+                  : `Severe (${filterCounts.SEVERE})`}
               </button>
             ))}
           </div>
