@@ -6,6 +6,8 @@ import { PriorityBadge } from '../common/PriorityBadge';
 import { formatDateTime, formatConfidence, getEffectiveSeverity, getPotholePhoto } from '../../utils/formatters';
 import { usePotholes } from '../../context/PotholeContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
+import { Lock } from 'lucide-react';
 
 interface PotholeDetailsModalProps {
   pothole: Pothole | null;
@@ -15,6 +17,7 @@ interface PotholeDetailsModalProps {
 export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothole, onClose }) => {
   const { updateRepair } = usePotholes();
   const { addToast } = useNotifications();
+  const { isGovernmentUser } = useAuth();
   const [engineerInput, setEngineerInput] = useState('');
   const [repairNoteInput, setRepairNoteInput] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -166,24 +169,38 @@ export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothol
           </div>
         ) : (
           <div className="pt-3 border-t border-slate-200 space-y-2">
-            <div className="text-[11px] font-semibold uppercase text-slate-700">
-              Government Engineer Workflow
+            <div className="text-[11px] font-semibold uppercase text-slate-700 flex items-center justify-between">
+              <span>Government Engineer Workflow</span>
+              {!isGovernmentUser && (
+                <span className="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-mono">
+                  Read-Only Mode
+                </span>
+              )}
             </div>
+
+            {!isGovernmentUser && (
+              <div className="p-2 bg-amber-50 border border-amber-200 text-amber-900 rounded text-[11px] font-medium flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>Government authorization required to modify repair status or workflow notes.</span>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 type="text"
-                placeholder="Assign Engineer (e.g. Er. Rajesh Bhat)"
+                disabled={!isGovernmentUser}
+                placeholder={isGovernmentUser ? "Assign Engineer (e.g. Er. Rajesh Bhat)" : "Engineer Assignment (Gov Auth Required)"}
                 value={engineerInput}
                 onChange={e => setEngineerInput(e.target.value)}
-                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900"
+                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900 disabled:bg-slate-100 disabled:text-slate-500"
               />
               <input
                 type="text"
-                placeholder="Add inspection or repair note..."
+                disabled={!isGovernmentUser}
+                placeholder={isGovernmentUser ? "Add inspection or repair note..." : "Inspection Note (Gov Auth Required)"}
                 value={repairNoteInput}
                 onChange={e => setRepairNoteInput(e.target.value)}
-                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900"
+                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-900 disabled:bg-slate-100 disabled:text-slate-500"
               />
             </div>
 
@@ -192,37 +209,37 @@ export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothol
                 <>
                   <button
                     onClick={() => handleStatusChange('INSPECTION')}
-                    disabled={actionLoading}
-                    className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors"
+                    disabled={!isGovernmentUser || actionLoading}
+                    className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Mark Inspection
                   </button>
                   <button
                     onClick={() => handleStatusChange('ASSIGNED')}
-                    disabled={actionLoading}
-                    className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors"
+                    disabled={!isGovernmentUser || actionLoading}
+                    className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Assign Crew
                   </button>
                   <button
                     onClick={() => handleStatusChange('REPAIR IN PROGRESS')}
-                    disabled={actionLoading}
-                    className="px-3 py-1 bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-300 rounded font-medium transition-colors"
+                    disabled={!isGovernmentUser || actionLoading}
+                    className="px-3 py-1 bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-300 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Start Repair
                   </button>
                   <button
                     onClick={() => handleStatusChange('REJECTED')}
-                    disabled={actionLoading}
-                    className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium transition-colors"
+                    disabled={!isGovernmentUser || actionLoading}
+                    className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Mark as False Detection or Not a Pothole"
                   >
                     Reject False Alarm
                   </button>
                   <button
                     onClick={() => handleStatusChange('REPAIRED')}
-                    disabled={actionLoading}
-                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-semibold transition-colors"
+                    disabled={!isGovernmentUser || actionLoading}
+                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Mark Repaired & Certified
                   </button>
@@ -230,8 +247,8 @@ export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothol
               ) : (
                 <button
                   onClick={() => handleStatusChange('REOPENED')}
-                  disabled={actionLoading}
-                  className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded font-medium transition-colors"
+                  disabled={!isGovernmentUser || actionLoading}
+                  className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Reopen Resurfaced Record
                 </button>

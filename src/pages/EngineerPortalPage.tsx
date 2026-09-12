@@ -17,7 +17,7 @@ import {
 
 export const EngineerPortalPage: React.FC = () => {
   const { potholes, updateRepair, setSelectedPothole } = usePotholes();
-  const { user } = useAuth();
+  const { user, isGovernmentUser } = useAuth();
 
   const [activeTab, setActiveTab] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -416,8 +416,10 @@ export const EngineerPortalPage: React.FC = () => {
 
                         {p.status === 'PENDING' && (
                           <button
+                            disabled={!isGovernmentUser}
                             onClick={() => openActionModal(p, 'VERIFY')}
-                            className="px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[11px] font-semibold hover:bg-emerald-100"
+                            className="px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[11px] font-semibold hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={isGovernmentUser ? "Verify Case" : "Government authorization required"}
                           >
                             Verify
                           </button>
@@ -425,8 +427,10 @@ export const EngineerPortalPage: React.FC = () => {
 
                         {p.status !== 'REPAIRED' && p.status !== 'REJECTED' && (
                           <button
+                            disabled={!isGovernmentUser}
                             onClick={() => openActionModal(p, 'ASSIGN')}
-                            className="px-2 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-[11px] font-semibold hover:bg-indigo-100"
+                            className="px-2 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-[11px] font-semibold hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={isGovernmentUser ? "Assign Crew" : "Government authorization required"}
                           >
                             Assign
                           </button>
@@ -434,8 +438,10 @@ export const EngineerPortalPage: React.FC = () => {
 
                         {(p.status === 'ASSIGNED' || p.status === 'INSPECTION') && (
                           <button
+                            disabled={!isGovernmentUser}
                             onClick={() => openActionModal(p, 'START_REPAIR')}
-                            className="px-2 py-1 bg-purple-600 text-white rounded text-[11px] font-semibold hover:bg-purple-700"
+                            className="px-2 py-1 bg-purple-600 text-white rounded text-[11px] font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={isGovernmentUser ? "Start Repair" : "Government authorization required"}
                           >
                             Start Repair
                           </button>
@@ -443,8 +449,10 @@ export const EngineerPortalPage: React.FC = () => {
 
                         {p.status === 'REPAIR IN PROGRESS' && (
                           <button
+                            disabled={!isGovernmentUser}
                             onClick={() => openActionModal(p, 'COMPLETE')}
-                            className="px-2 py-1 bg-emerald-600 text-white rounded text-[11px] font-semibold hover:bg-emerald-700"
+                            className="px-2 py-1 bg-emerald-600 text-white rounded text-[11px] font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={isGovernmentUser ? "Complete Repair" : "Government authorization required"}
                           >
                             Complete
                           </button>
@@ -453,14 +461,18 @@ export const EngineerPortalPage: React.FC = () => {
                         {p.status === 'REPAIRED' && (
                           <>
                             <button
+                              disabled={!isGovernmentUser}
                               onClick={() => openActionModal(p, 'RESOLVE')}
-                              className="px-2 py-1 bg-slate-900 text-white rounded text-[11px] font-semibold hover:bg-slate-800"
+                              className="px-2 py-1 bg-slate-900 text-white rounded text-[11px] font-semibold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={isGovernmentUser ? "Resolve Case" : "Government authorization required"}
                             >
                               Resolve
                             </button>
                             <button
+                              disabled={!isGovernmentUser}
                               onClick={() => openActionModal(p, 'REOPEN')}
-                              className="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded text-[11px] font-semibold hover:bg-rose-100"
+                              className="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded text-[11px] font-semibold hover:bg-rose-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={isGovernmentUser ? "Reopen Case" : "Government authorization required"}
                             >
                               Reopen
                             </button>

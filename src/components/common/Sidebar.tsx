@@ -26,7 +26,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) => {
   const { unreadCount } = useNotifications();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isGovernmentUser, isCitizenUser } = useAuth();
 
   const publicNavItems = [
     { to: '/', label: 'Home Overview', icon: Home },
@@ -34,21 +34,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
     { to: '/report', label: 'Report Pothole', icon: AlertCircle },
     { to: '/about', label: 'About System', icon: Info },
     { to: '/status', label: 'System Status', icon: Activity },
-    { to: '/public-status', label: 'Public Government Status', icon: FileText }
+    { to: '/public-status', label: 'Public Government Status', icon: FileText },
+    { to: '/my-reports', label: 'My Reports', icon: FileText },
+    { to: '/my-complaints', label: 'My Complaints', icon: AlertCircle }
   ];
 
   const govtNavItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/government/map', label: 'Live Map', icon: Map },
-    { to: '/robot', label: 'Robot Monitoring', icon: Cpu },
-    { to: '/ai-detect', label: 'AI Detection', icon: ScanLine },
-    { to: '/reports', label: 'Pothole Reports', icon: FileText },
+    { to: '/live-map', label: 'Live Map', icon: Map },
+    { to: '/robot-monitoring', label: 'Robot Monitoring', icon: Cpu },
+    { to: '/ai-detection', label: 'AI Detection', icon: ScanLine },
+    { to: '/pothole-reports', label: 'Pothole Reports', icon: FileText },
     { to: '/notifications', label: 'Notifications', icon: Bell, count: unreadCount },
     { to: '/complaints', label: 'Complaints Queue', icon: AlertCircle },
-    { to: '/repairs', label: 'Repair Management', icon: Wrench },
+    { to: '/repair-management', label: 'Repair Management', icon: Wrench },
     { to: '/analytics', label: 'Analytics', icon: BarChart2 },
-    { to: '/settings', label: 'Settings', icon: Settings },
-    { to: '/engineer-portal', label: 'Engineer Portal', icon: Wrench }
+    { to: '/engineer-portal', label: 'Engineer Portal', icon: Wrench },
+    { to: '/settings', label: 'Settings', icon: Settings }
   ];
 
   return (
@@ -101,7 +103,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
           <div className="space-y-0.5 pt-2 border-t border-slate-100">
             <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 flex items-center justify-between">
               <span>Government Portal</span>
-              {isAuthenticated && <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>}
+              {isCitizenUser ? (
+                <span className="text-[9px] px-1 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200 font-mono">READ-ONLY</span>
+              ) : isGovernmentUser ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" title="Full Access"></span>
+              ) : null}
             </div>
 
             {govtNavItems.map(item => {

@@ -88,18 +88,24 @@ export const App: React.FC = () => {
                   <Route path="/status" element={<PublicStatusPage />} />
                   <Route path="/login" element={<LoginPage />} />
 
-                  {/* Government Portal Routes (Protected) */}
+                  {/* Government Portal Routes (Protected / Viewable by all authenticated users) */}
                   <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                   <Route path="/government/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                  <Route path="/live-map" element={<ProtectedRoute><PublicMapPage /></ProtectedRoute>} />
                   <Route path="/government/map" element={<ProtectedRoute><PublicMapPage /></ProtectedRoute>} />
                   <Route path="/robot" element={<ProtectedRoute><RobotMonitoringPage /></ProtectedRoute>} />
+                  <Route path="/robot-monitoring" element={<ProtectedRoute><RobotMonitoringPage /></ProtectedRoute>} />
                   <Route path="/ai-detect" element={<ProtectedRoute><AiDetectionPage /></ProtectedRoute>} />
                   <Route path="/ai-detection" element={<ProtectedRoute><AiDetectionPage /></ProtectedRoute>} />
                   <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                  <Route path="/pothole-reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                  <Route path="/my-reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
                   <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
                   <Route path="/complaints" element={<ProtectedRoute><ComplaintBoxPage /></ProtectedRoute>} />
                   <Route path="/government/complaints" element={<ProtectedRoute><ComplaintBoxPage /></ProtectedRoute>} />
+                  <Route path="/my-complaints" element={<ProtectedRoute><ComplaintBoxPage /></ProtectedRoute>} />
                   <Route path="/repairs" element={<ProtectedRoute><RepairManagementPage /></ProtectedRoute>} />
+                  <Route path="/repair-management" element={<ProtectedRoute><RepairManagementPage /></ProtectedRoute>} />
                   <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   <Route path="/engineer-portal" element={<ProtectedRoute><EngineerPortalPage /></ProtectedRoute>} />

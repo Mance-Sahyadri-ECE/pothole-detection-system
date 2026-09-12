@@ -31,9 +31,7 @@ export const LoginPage: React.FC = () => {
 
   // Shared state
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(
-    accessDenied ? 'Access Denied: Government Authorization Required. Citizen accounts cannot access internal government portal pages.' : null
-  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Citizen submit handler
   const handleCitizenSubmit = async (e: React.FormEvent) => {
@@ -53,7 +51,8 @@ export const LoginPage: React.FC = () => {
         const res = await registerCitizen(citizenName, citizenContact, citizenPassword);
         setLoading(false);
         if (res.success) {
-          navigate('/', { replace: true });
+          const destination = targetPath || '/dashboard';
+          navigate(destination, { replace: true });
         } else {
           setErrorMessage(res.error || 'Citizen registration failed.');
         }
@@ -61,7 +60,8 @@ export const LoginPage: React.FC = () => {
         const res = await loginCitizen(citizenContact, citizenPassword);
         setLoading(false);
         if (res.success) {
-          navigate('/', { replace: true });
+          const destination = targetPath || '/dashboard';
+          navigate(destination, { replace: true });
         } else {
           setErrorMessage(res.error || 'Invalid citizen credentials.');
         }
@@ -168,7 +168,7 @@ export const LoginPage: React.FC = () => {
                   </div>
                   <h3 className="text-sm font-bold text-slate-900">PUBLIC PORTAL</h3>
                   <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Citizen access for submitting road complaints, reporting potholes, and tracking public repair status.
+                    Citizen access for submitting road complaints, reporting potholes, and viewing complete Government Portal monitoring (Read-Only).
                   </p>
                 </div>
                 <button className="w-full py-2 bg-slate-100 group-hover:bg-slate-900 group-hover:text-white text-slate-800 font-semibold rounded text-xs transition-colors flex items-center justify-center gap-1.5 mt-2">
@@ -187,7 +187,7 @@ export const LoginPage: React.FC = () => {
                   </div>
                   <h3 className="text-sm font-bold text-slate-900">GOVERNMENT PORTAL</h3>
                   <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Authorized access for PWD/NHAI Executive Engineers, Field Crews, Sub-Engineers, and Admins.
+                    Authorized access for PWD/NHAI Executive Engineers, Field Crews, Sub-Engineers, and Admins (Full Read & Write).
                   </p>
                 </div>
                 <button className="w-full py-2 bg-slate-100 group-hover:bg-slate-900 group-hover:text-white text-slate-800 font-semibold rounded text-xs transition-colors flex items-center justify-center gap-1.5 mt-2">
@@ -211,7 +211,7 @@ export const LoginPage: React.FC = () => {
             <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
               <div>
                 <h2 className="text-base font-bold text-slate-900">CITIZEN / PUBLIC PORTAL</h2>
-                <p className="text-slate-500 text-[11px]">Sign in or create a citizen account to submit & track road reports</p>
+                <p className="text-slate-500 text-[11px]">Sign in to access Public Features (Write) + Government Portal (Read-Only)</p>
               </div>
               <span className="px-2.5 py-1 bg-blue-50 text-blue-800 border border-blue-200 rounded font-semibold text-[10px]">
                 ROLE: CITIZEN
@@ -318,11 +318,23 @@ export const LoginPage: React.FC = () => {
             <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
               <div>
                 <h2 className="text-base font-bold text-slate-900">GOVERNMENT ENGINEER PORTAL</h2>
-                <p className="text-slate-500 text-[11px]">Authorized PWD / NHAI personnel authentication</p>
+                <p className="text-slate-500 text-[11px]">Authorized PWD / NHAI personnel authentication (Read + Write)</p>
               </div>
               <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-semibold text-[10px]">
                 GOVERNMENT ROLE
               </span>
+            </div>
+
+            <div className="p-2.5 bg-blue-50 border border-blue-200 text-blue-900 rounded text-center text-xs">
+              Are you a Public Citizen?{' '}
+              <button
+                type="button"
+                onClick={() => { setErrorMessage(null); setPortalView('PUBLIC'); }}
+                className="font-bold underline text-blue-800 hover:text-blue-950"
+              >
+                Click here to sign in as Citizen
+              </button>{' '}
+              to view all Government Portal pages in Read-Only mode.
             </div>
 
             {/* Government Login Form */}

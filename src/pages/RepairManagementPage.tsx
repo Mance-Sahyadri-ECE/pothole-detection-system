@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { usePotholes } from '../context/PotholeContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
 import { Pothole, PotholeStatus } from '../types';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 import { formatDateTime, getEffectiveSeverity } from '../utils/formatters';
-import { Search, Bot, UserCheck } from 'lucide-react';
+import { Search, Bot, UserCheck, Lock } from 'lucide-react';
 
 const ENGINEERS = [
   'Er. Rajesh Bhat (PWD)',
@@ -18,6 +19,7 @@ const ENGINEERS = [
 export const RepairManagementPage: React.FC = () => {
   const { potholes, updateRepair, setSelectedPothole } = usePotholes();
   const { addToast } = useNotifications();
+  const { isGovernmentUser } = useAuth();
 
   // Table view as DEFAULT
   const [viewMode, setViewMode] = useState<'TABLE' | 'KANBAN'>('TABLE');
@@ -248,13 +250,25 @@ export const RepairManagementPage: React.FC = () => {
                       </td>
                       <td className="py-2 px-3 text-right font-sans whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSelectedPothole(p);
+                            }}
+                            className="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded text-[11px] font-medium"
+                            title="View details"
+                          >
+                            View Details
+                          </button>
                           {p.status !== 'REPAIRED' && (
                             <button
+                              disabled={!isGovernmentUser}
                               onClick={e => {
                                 e.stopPropagation();
                                 setSelectedPotholeToAssign(p);
                               }}
-                              className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-medium"
+                              className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={isGovernmentUser ? "Assign Engineer" : "Government authorization required"}
                             >
                               Assign
                             </button>
@@ -262,11 +276,13 @@ export const RepairManagementPage: React.FC = () => {
 
                           {p.status === 'ASSIGNED' && (
                             <button
+                              disabled={!isGovernmentUser}
                               onClick={e => {
                                 e.stopPropagation();
                                 handleQuickStatusMove(p, 'REPAIR IN PROGRESS');
                               }}
-                              className="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded text-[11px] font-medium"
+                              className="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded text-[11px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={isGovernmentUser ? "Start Repair" : "Government authorization required"}
                             >
                               Start
                             </button>
@@ -274,11 +290,13 @@ export const RepairManagementPage: React.FC = () => {
 
                           {p.status !== 'REPAIRED' && (
                             <button
+                              disabled={!isGovernmentUser}
                               onClick={e => {
                                 e.stopPropagation();
                                 handleQuickStatusMove(p, 'REPAIRED');
                               }}
-                              className="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-medium"
+                              className="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={isGovernmentUser ? "Mark Repaired" : "Government authorization required"}
                             >
                               Mark Repaired
                             </button>

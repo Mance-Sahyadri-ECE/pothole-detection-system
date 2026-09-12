@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useRobot } from '../context/RobotContext';
 import { usePotholes } from '../context/PotholeContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
 
 export const SettingsPage: React.FC = () => {
   const { autoPatrol, setAutoPatrol, patrolInterval, setPatrolInterval } = useRobot();
   const { resetAllData } = usePotholes();
   const { addToast } = useNotifications();
+  const { isGovernmentUser } = useAuth();
 
   const [apiUrl, setApiUrl] = useState(import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
   const [wsUrl, setWsUrl] = useState(import.meta.env.VITE_WS_URL || 'ws://localhost:5000/ws');
@@ -36,7 +38,9 @@ export const SettingsPage: React.FC = () => {
 
         <button
           onClick={handleSave}
-          className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
+          disabled={!isGovernmentUser}
+          className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title={isGovernmentUser ? "Save Configuration" : "Government authorization required"}
         >
           Save Configuration
         </button>

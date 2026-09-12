@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 import { usePotholes } from '../context/PotholeContext';
+import { useAuth } from '../context/AuthContext';
 import { GovernmentNotification } from '../types';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { PriorityBadge } from '../components/common/PriorityBadge';
@@ -9,6 +10,7 @@ import { formatDateTime } from '../utils/formatters';
 export const NotificationsPage: React.FC = () => {
   const { notifications, unreadCount, markAsViewed, markAllAsViewed, updateNotification } = useNotifications();
   const { updateRepair, setSelectedPothole, potholes } = usePotholes();
+  const { isGovernmentUser } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'ALL' | 'CRITICAL' | 'RESOLVED'>('ALL');
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
@@ -63,8 +65,10 @@ export const NotificationsPage: React.FC = () => {
 
         {unreadCount > 0 && (
           <button
-            onClick={() => markAllAsViewed()}
-            className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded text-xs font-medium transition-colors"
+            onClick={markAllAsViewed}
+            disabled={!isGovernmentUser}
+            className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title={isGovernmentUser ? "Mark all as viewed" : "Government authorization required"}
           >
             Mark All as Viewed
           </button>
@@ -149,8 +153,9 @@ export const NotificationsPage: React.FC = () => {
                       {!notif.viewed && (
                         <button
                           onClick={() => handleAcknowledge(notif)}
-                          disabled={actionLoadingId === notif.id}
-                          className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-medium transition-colors"
+                          disabled={!isGovernmentUser || actionLoadingId === notif.id}
+                          className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title={isGovernmentUser ? "Acknowledge Alert" : "Government authorization required"}
                         >
                           Acknowledge
                         </button>
@@ -158,8 +163,9 @@ export const NotificationsPage: React.FC = () => {
                       {!notif.resolved && (
                         <button
                           onClick={() => handleAssignRepair(notif)}
-                          disabled={actionLoadingId === notif.id}
-                          className="px-2 py-0.5 bg-white hover:bg-slate-50 text-blue-700 border border-blue-300 rounded text-[11px] font-medium transition-colors"
+                          disabled={!isGovernmentUser || actionLoadingId === notif.id}
+                          className="px-2 py-0.5 bg-white hover:bg-slate-50 text-blue-700 border border-blue-300 rounded text-[11px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title={isGovernmentUser ? "Assign Repair" : "Government authorization required"}
                         >
                           Assign Repair
                         </button>

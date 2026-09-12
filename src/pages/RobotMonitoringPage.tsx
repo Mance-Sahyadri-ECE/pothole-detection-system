@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useRobot } from '../context/RobotContext';
 import { usePotholes } from '../context/PotholeContext';
+import { useAuth } from '../context/AuthContext';
 import { formatDateTime } from '../utils/formatters';
 
 export const RobotMonitoringPage: React.FC = () => {
   const { robotStatus, autoPatrol, setAutoPatrol, patrolInterval, setPatrolInterval } = useRobot();
   const { simulateDetection, simulateCriticalEmergency } = usePotholes();
+  const { isGovernmentUser } = useAuth();
   const [loading, setLoading] = useState(false);
 
   if (!robotStatus) {
@@ -166,34 +168,45 @@ export const RobotMonitoringPage: React.FC = () => {
 
       {/* Technical Simulation Controls at the bottom */}
       <div className="bg-slate-50 border border-slate-200 rounded p-4 space-y-3">
-        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-          Simulation Stream Controls
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+            Simulation Stream Controls
+          </h3>
+          {!isGovernmentUser && (
+            <span className="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-mono">
+              Government Auth Required
+            </span>
+          )}
+        </div>
 
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <button
             onClick={handleSimulate}
-            disabled={loading}
-            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 rounded font-medium transition-colors disabled:opacity-50"
+            disabled={!isGovernmentUser || loading}
+            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title={isGovernmentUser ? "Trigger Random Detection" : "Government authorization required"}
           >
             Trigger Random Detection
           </button>
 
           <button
             onClick={handleSimulateSevere}
-            disabled={loading}
-            className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded font-medium transition-colors disabled:opacity-50"
+            disabled={!isGovernmentUser || loading}
+            className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title={isGovernmentUser ? "Trigger Severe Hazard" : "Government authorization required"}
           >
             Trigger Severe Critical Hazard
           </button>
 
           <button
             onClick={() => setAutoPatrol(!autoPatrol)}
-            className={`px-3 py-1.5 rounded border font-medium transition-colors ${
+            disabled={!isGovernmentUser}
+            className={`px-3 py-1.5 rounded border font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               autoPatrol
                 ? 'bg-slate-900 text-white border-slate-900'
                 : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
             }`}
+            title={isGovernmentUser ? "Toggle Automatic Loop" : "Government authorization required"}
           >
             {autoPatrol ? 'Automatic Loop: Active' : 'Automatic Loop: Disabled'}
           </button>
@@ -204,9 +217,10 @@ export const RobotMonitoringPage: React.FC = () => {
               type="number"
               min="5"
               max="60"
+              disabled={!isGovernmentUser}
               value={patrolInterval}
               onChange={e => setPatrolInterval(Number(e.target.value))}
-              className="w-14 px-1.5 py-1 border border-slate-300 rounded bg-white text-center font-bold"
+              className="w-14 px-1.5 py-1 border border-slate-300 rounded bg-white text-center font-bold disabled:bg-slate-100 disabled:text-slate-400"
             />
             <span>sec</span>
           </div>
