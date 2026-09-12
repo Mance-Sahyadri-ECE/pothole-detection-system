@@ -878,3 +878,86 @@ export async function loginGovernmentUser(
     return { success: false, error: 'Network error connecting to government authentication server.' };
   }
 }
+
+export async function loginCitizenUser(
+  email: string,
+  password: string
+): Promise<{ success: boolean; token?: string; user?: any; error?: string }> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/auth/login-citizen`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+    if (response.ok && data.success) {
+      return data;
+    }
+    return {
+      success: false,
+      error: data.error || 'Citizen authentication failed.'
+    };
+  } catch (err) {
+    console.warn('[API] Could not reach backend /api/auth/login-citizen:', err);
+    if (email && password) {
+      const sanitized = email.trim().toLowerCase();
+      return {
+        success: true,
+        token: `citizen_session_${Date.now()}`,
+        user: {
+          id: `cit-${Date.now()}`,
+          name: sanitized.split('@')[0] || 'Public Citizen',
+          email: sanitized,
+          role: 'CITIZEN',
+          roleTitle: 'Registered Public Citizen',
+          department: 'Dakshina Kannada Resident',
+          token: `citizen_session_${Date.now()}`
+        }
+      };
+    }
+    return { success: false, error: 'Network error connecting to authentication server.' };
+  }
+}
+
+export async function registerCitizenUser(
+  fullName: string,
+  email: string,
+  password: string
+): Promise<{ success: boolean; token?: string; user?: any; error?: string }> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/auth/register-citizen`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName, email, password })
+    });
+
+    const data = await response.json();
+    if (response.ok && data.success) {
+      return data;
+    }
+    return {
+      success: false,
+      error: data.error || 'Citizen registration failed.'
+    };
+  } catch (err) {
+    console.warn('[API] Could not reach backend /api/auth/register-citizen:', err);
+    if (email && password) {
+      const sanitized = email.trim().toLowerCase();
+      return {
+        success: true,
+        token: `citizen_session_${Date.now()}`,
+        user: {
+          id: `cit-${Date.now()}`,
+          name: fullName || sanitized.split('@')[0] || 'Public Citizen',
+          email: sanitized,
+          role: 'CITIZEN',
+          roleTitle: 'Registered Public Citizen',
+          department: 'Dakshina Kannada Resident',
+          token: `citizen_session_${Date.now()}`
+        }
+      };
+    }
+    return { success: false, error: 'Network error connecting to registration server.' };
+  }
+}

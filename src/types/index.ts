@@ -13,6 +13,7 @@ export type PotholeStatus =
 
 export type UserRole = 
   | 'PUBLIC'
+  | 'CITIZEN'
   | 'FIELD_ENGINEER' 
   | 'SUB_ENGINEER' 
   | 'EXECUTIVE_ENGINEER' 
