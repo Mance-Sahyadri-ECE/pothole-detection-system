@@ -4,7 +4,7 @@ import { useNotifications } from '../context/NotificationContext';
 import { Pothole, PotholeStatus } from '../types';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { PriorityBadge } from '../components/common/PriorityBadge';
-import { formatDateTime } from '../utils/formatters';
+import { formatDateTime, getEffectiveSeverity } from '../utils/formatters';
 import { Search, Bot, UserCheck } from 'lucide-react';
 
 const ENGINEERS = [
@@ -239,7 +239,7 @@ export const RepairManagementPage: React.FC = () => {
                         <div>{p.location}</div>
                         {isCitizen && <div className="text-[10px] text-slate-400 font-mono">{p.detectedBy}</div>}
                       </td>
-                      <td className="py-2 px-3"><StatusBadge severity={p.severity} /></td>
+                      <td className="py-2 px-3"><StatusBadge severity={getEffectiveSeverity(p)} /></td>
                       <td className="py-2 px-3"><PriorityBadge priority={p.priority} /></td>
                       <td className="py-2 px-3 font-sans text-slate-700">{p.assignedEngineer || <span className="text-slate-400 italic">Unassigned</span>}</td>
                       <td className="py-2 px-3 font-sans"><StatusBadge status={p.status} /></td>

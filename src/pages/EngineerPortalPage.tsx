@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { usePotholes } from '../context/PotholeContext';
 import { useAuth } from '../context/AuthContext';
 import { Pothole, PotholeStatus, PriorityLevel } from '../types';
+import { getEffectiveSeverity } from '../utils/formatters';
 import { 
   ShieldAlert, 
   CheckCircle2, 
@@ -367,7 +368,7 @@ export const EngineerPortalPage: React.FC = () => {
 
                     {/* Severity */}
                     <td className="p-3">
-                      {getSeverityBadge(p.severity)}
+                      {getSeverityBadge(getEffectiveSeverity(p))}
                     </td>
 
                     {/* Priority */}

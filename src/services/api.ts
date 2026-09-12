@@ -19,10 +19,10 @@ import { eventBus } from './eventBus';
 const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
 const STORAGE_KEYS = {
-  POTHOLES: 'pds_potholes_v4',
-  NOTIFICATIONS: 'pds_notifications_v4',
-  COMPLAINTS: 'pds_complaints_v4',
-  ROBOT: 'pds_robot_v4'
+  POTHOLES: 'pds_potholes_v6',
+  NOTIFICATIONS: 'pds_notifications_v6',
+  COMPLAINTS: 'pds_complaints_v6',
+  ROBOT: 'pds_robot_v6'
 };
 
 function loadStorage<T>(key: string, fallback: T): T {
@@ -77,7 +77,7 @@ function mapDbPotholeToFrontend(db: any): Pothole {
     status: (db.status || 'PENDING') as PotholeStatus,
     detectedBy: db.detected_by || db.detectedBy || 'Pothole Patrol Robot 01',
     detectedAt: db.detected_at || db.detectedAt || new Date().toISOString(),
-    imageUrl: db.image_url || db.imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
+    imageUrl: db.image_url || db.imageUrl || '/assets/pending_severe.jpg',
     repairedImageUrl: db.repaired_image_url || db.repairedImageUrl,
     trafficLevel: db.traffic_level || db.trafficLevel || 'HIGH',
     source: db.source || (db.id.startsWith('CMP-') ? 'CITIZEN_COMPLAINT' : 'AI_DETECTION'),
@@ -198,7 +198,7 @@ export async function createPothole(data: Partial<Pothole>): Promise<Pothole> {
     status: 'PENDING',
     detectedBy: data.detectedBy || 'Pothole Patrol Robot 01',
     detectedAt: data.detectedAt || new Date().toISOString(),
-    imageUrl: data.imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
+    imageUrl: data.imageUrl || '/assets/pending_severe.jpg',
     trafficLevel,
     source: data.source || (id.startsWith('CMP-') ? 'CITIZEN_COMPLAINT' : 'AI_DETECTION'),
     linkedComplaintId: data.linkedComplaintId || (id.startsWith('CMP-') ? id : undefined),
@@ -321,7 +321,7 @@ export async function updateRepairStatus(
       status: newStatus,
       detectedBy: id.startsWith('CMP-') ? 'Citizen Grievance' : 'Pothole Patrol Robot 01',
       detectedAt: new Date().toISOString(),
-      imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
+      imageUrl: '/assets/pending_severe.jpg',
       trafficLevel: 'HIGH',
       source: id.startsWith('CMP-') ? 'CITIZEN_COMPLAINT' : 'AI_DETECTION',
       linkedComplaintId: id.startsWith('CMP-') ? id : undefined,
@@ -348,7 +348,7 @@ export async function updateRepairStatus(
     status: newStatus,
     assignedEngineer: engineer || pothole.assignedEngineer,
     repairNotes: note ? `${pothole.repairNotes ? pothole.repairNotes + ' | ' : ''}${note}` : pothole.repairNotes,
-    repairedImageUrl: newStatus === 'REPAIRED' ? (repairImage || pothole.repairedImageUrl || 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80') : pothole.repairedImageUrl,
+    repairedImageUrl: newStatus === 'REPAIRED' ? (repairImage || pothole.repairedImageUrl || '/assets/pending_severe.jpg') : pothole.repairedImageUrl,
     repairHistory: [...(pothole.repairHistory || []), historyItem]
   };
 
@@ -657,7 +657,7 @@ export async function acceptComplaintAndCreateRepairTask(
     status: 'PENDING',
     detectedBy: `Citizen: ${complaint.citizenName}`,
     detectedAt: new Date().toISOString(),
-    imageUrl: complaint.imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
+    imageUrl: complaint.imageUrl || '/assets/pending_severe.jpg',
     trafficLevel: complaint.severityEstimate === 'SEVERE' ? 'HIGH' : 'NORMAL',
     source: 'CITIZEN_COMPLAINT',
     linkedComplaintId: complaint.id,
@@ -815,7 +815,7 @@ export async function simulateRobotDetection(forcedSeverity?: SeverityLevel): Pr
     trafficLevel,
     detectedBy: 'Pothole Patrol Robot 01',
     source: 'AI_DETECTION',
-    imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80'
+    imageUrl: '/assets/pending_severe.jpg'
   });
 
   return pothole;

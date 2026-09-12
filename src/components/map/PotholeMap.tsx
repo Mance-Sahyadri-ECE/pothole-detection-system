@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Pothole, PotholeStatus } from '../../types';
@@ -7,7 +7,7 @@ import { usePotholes } from '../../context/PotholeContext';
 import { useRobot } from '../../context/RobotContext';
 import { StatusBadge } from '../common/StatusBadge';
 import { MapLegend } from './MapLegend';
-import { formatConfidence, formatDateTime } from '../../utils/formatters';
+import { formatConfidence, formatDateTime, getEffectiveSeverity, getPotholePhoto } from '../../utils/formatters';
 import { Search, Crosshair, Cpu, XCircle, AlertCircle } from 'lucide-react';
 
 // Fix standard Leaflet default icon path issues
@@ -167,26 +167,26 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
   ]);
   const [zoomTarget, setZoomTarget] = useState(14);
 
-  // Dynamic filter counts
+  // Dynamic filter counts based on effective user-facing condition display
   const filterCounts = useMemo(() => {
     return {
       ALL: potholes.length,
-      NORMAL: potholes.filter(p => p.severity === 'NORMAL').length,
-      MODERATE: potholes.filter(p => p.severity === 'MODERATE').length,
-      HIGH: potholes.filter(p => p.severity === 'HIGH').length,
-      SEVERE: potholes.filter(p => p.severity === 'SEVERE').length,
+      NORMAL: potholes.filter(p => getEffectiveSeverity(p) === 'NORMAL').length,
+      MODERATE: potholes.filter(p => getEffectiveSeverity(p) === 'MODERATE').length,
+      HIGH: potholes.filter(p => getEffectiveSeverity(p) === 'HIGH').length,
+      SEVERE: potholes.filter(p => getEffectiveSeverity(p) === 'SEVERE').length,
       REPAIRED: potholes.filter(p => p.status === 'REPAIRED').length,
     };
   }, [potholes]);
 
-  // Filtered map dataset
+  // Filtered map dataset using effective severity mapping
   const filteredPotholes = useMemo(() => {
     return potholes.filter(p => {
-      // Category filter
-      if (activeFilter === 'NORMAL' && p.severity !== 'NORMAL') return false;
-      if (activeFilter === 'MODERATE' && p.severity !== 'MODERATE') return false;
-      if (activeFilter === 'HIGH' && p.severity !== 'HIGH') return false;
-      if (activeFilter === 'SEVERE' && p.severity !== 'SEVERE') return false;
+      const effSev = getEffectiveSeverity(p);
+      if (activeFilter === 'NORMAL' && effSev !== 'NORMAL') return false;
+      if (activeFilter === 'MODERATE' && effSev !== 'MODERATE') return false;
+      if (activeFilter === 'HIGH' && effSev !== 'HIGH') return false;
+      if (activeFilter === 'SEVERE' && effSev !== 'SEVERE') return false;
       if (activeFilter === 'REPAIRED' && p.status !== 'REPAIRED') return false;
 
       // Text search filter
@@ -207,7 +207,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
   // Execute search and trigger map zooming
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    setCenterTarget(null); // Clear manual center target so search bounds trigger
+    setCenterTarget(null);
     setSearchTrigger(prev => prev + 1);
   };
 
@@ -299,7 +299,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
             <button
               onClick={handleCenterMap}
               className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded font-medium flex items-center gap-1 transition-colors whitespace-nowrap"
-              title="Center Map on Sahyadri College, Adyar (12.8650354° N, 74.9257386° E)"
+              title="Center Map on Sahyadri College, Adyar"
             >
               <Crosshair className="w-3.5 h-3.5 text-blue-700" />
               <span>Center</span>
@@ -412,13 +412,12 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
           {/* Pothole / Road Condition Markers */}
           {filteredPotholes.map(pothole => {
             const category = getRepairStatusCategory(pothole.status);
+            const effSeverity = getEffectiveSeverity(pothole);
             const lastHistory = pothole.repairHistory && pothole.repairHistory.length > 0
               ? pothole.repairHistory[pothole.repairHistory.length - 1]
               : null;
             const lastUpdatedTime = lastHistory?.timestamp || pothole.detectedAt;
-            const displayImage = (pothole.status === 'REPAIRED' && pothole.repairedImageUrl)
-              ? pothole.repairedImageUrl
-              : pothole.imageUrl;
+            const displayImage = getPotholePhoto(pothole);
 
             return (
               <Marker
@@ -432,7 +431,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
                     <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
                       <span className="font-mono font-bold text-slate-900 text-sm">{pothole.id}</span>
                       <div className="flex items-center gap-1">
-                        <StatusBadge severity={pothole.severity} />
+                        <StatusBadge severity={effSeverity} />
                         {category === 'REPAIRED' && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
                             🟢 REPAIRED
@@ -459,11 +458,6 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
                           alt={pothole.id}
                           className="w-full h-full object-cover"
                         />
-                        {pothole.status === 'REPAIRED' && pothole.repairedImageUrl && (
-                          <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-emerald-800/90 text-white font-mono text-[9px] rounded font-semibold">
-                            Post-Repair Photo
-                          </span>
-                        )}
                       </div>
                     )}
 
@@ -485,7 +479,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">Severity:</span>
-                        <span className="font-bold">{pothole.severity}</span>
+                        <span className="font-bold">{effSeverity}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">Repair Status:</span>

@@ -41,3 +41,25 @@ export function formatGps(lat: number, lng: number): string {
 export function formatConfidence(conf: number): string {
   return `${Math.round(conf * 100)}%`;
 }
+
+export function getEffectiveSeverity(pothole: { status: string; severity?: string }): 'NORMAL' | 'MODERATE' | 'HIGH' | 'SEVERE' {
+  if (pothole.status === 'REPAIRED') {
+    return 'NORMAL';
+  }
+  if (pothole.status === 'REPAIR IN PROGRESS' || pothole.status === 'WORK IN PROGRESS' || pothole.status === 'ASSIGNED' || pothole.status === 'INSPECTION') {
+    return 'MODERATE';
+  }
+  return 'SEVERE';
+}
+
+export function getPotholePhoto(pothole: { status: string; imageUrl?: string; repairedImageUrl?: string }): string {
+  if (pothole.status === 'REPAIRED') {
+    return '/assets/repaired_safe.jpg';
+  }
+  if (pothole.status === 'REPAIR IN PROGRESS' || pothole.status === 'WORK IN PROGRESS' || pothole.status === 'ASSIGNED' || pothole.status === 'INSPECTION') {
+    return '/assets/work_in_progress.jpg';
+  }
+  return '/assets/pending_severe.jpg';
+}
+
+

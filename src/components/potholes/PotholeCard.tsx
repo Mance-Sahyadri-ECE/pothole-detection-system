@@ -2,7 +2,7 @@ import React from 'react';
 import { Pothole } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';
 import { PriorityBadge } from '../common/PriorityBadge';
-import { formatRelativeTime, formatConfidence } from '../../utils/formatters';
+import { formatRelativeTime, formatConfidence, getEffectiveSeverity, getPotholePhoto } from '../../utils/formatters';
 import { MapPin, Bot, Clock, ArrowUpRight } from 'lucide-react';
 
 interface PotholeCardProps {
@@ -23,7 +23,7 @@ export const PotholeCard: React.FC<PotholeCardProps> = ({ pothole, onClick }) =>
             <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
               {pothole.id}
             </span>
-            <StatusBadge severity={pothole.severity} />
+            <StatusBadge severity={getEffectiveSeverity(pothole)} />
           </div>
           <PriorityBadge priority={pothole.priority} />
         </div>
@@ -41,7 +41,7 @@ export const PotholeCard: React.FC<PotholeCardProps> = ({ pothole, onClick }) =>
         <div className="flex items-center gap-3 my-2.5">
           <div className="w-16 h-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
             <img
-              src={pothole.status === 'REPAIRED' && pothole.repairedImageUrl ? pothole.repairedImageUrl : pothole.imageUrl}
+              src={getPotholePhoto(pothole)}
               alt={pothole.roadName}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform"
             />

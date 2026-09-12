@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePotholes } from '../context/PotholeContext';
 import { StatusBadge } from '../components/common/StatusBadge';
-import { formatDateTime } from '../utils/formatters';
+import { formatDateTime, getEffectiveSeverity, getPotholePhoto } from '../utils/formatters';
 import { Search, ShieldCheck, CheckCircle2, Clock } from 'lucide-react';
 import { Pothole } from '../types';
 
@@ -172,7 +172,7 @@ export const PublicTransparencyPage: React.FC = () => {
                 </div>
                 <div className="relative border border-slate-200 rounded overflow-hidden aspect-video bg-slate-100">
                   <img
-                    src={selectedRecord.imageUrl}
+                    src={getPotholePhoto(selectedRecord)}
                     alt={selectedRecord.id}
                     className="w-full h-full object-cover"
                   />
@@ -184,9 +184,9 @@ export const PublicTransparencyPage: React.FC = () => {
                   {selectedRecord.status === 'REPAIRED' ? 'Completed Repair Evidence' : 'Repair Status Photo'}
                 </div>
                 <div className="relative border border-slate-200 rounded overflow-hidden aspect-video bg-slate-100 flex items-center justify-center">
-                  {selectedRecord.status === 'REPAIRED' && selectedRecord.repairedImageUrl ? (
+                  {selectedRecord.status === 'REPAIRED' ? (
                     <img
-                      src={selectedRecord.repairedImageUrl}
+                      src="/assets/repaired_safe.jpg"
                       alt="Repaired Road"
                       className="w-full h-full object-cover"
                     />

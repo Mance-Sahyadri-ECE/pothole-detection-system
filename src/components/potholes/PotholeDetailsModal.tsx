@@ -3,7 +3,7 @@ import { Pothole, PotholeStatus } from '../../types';
 import { Modal } from '../common/Modal';
 import { StatusBadge } from '../common/StatusBadge';
 import { PriorityBadge } from '../common/PriorityBadge';
-import { formatDateTime, formatConfidence } from '../../utils/formatters';
+import { formatDateTime, formatConfidence, getEffectiveSeverity, getPotholePhoto } from '../../utils/formatters';
 import { usePotholes } from '../../context/PotholeContext';
 import { useNotifications } from '../../context/NotificationContext';
 
@@ -44,6 +44,7 @@ export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothol
   };
 
   const isRepaired = pothole.status === 'REPAIRED';
+  const effSeverity = getEffectiveSeverity(pothole);
 
   return (
     <Modal
@@ -53,7 +54,7 @@ export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothol
       title={
         <div className="flex items-center gap-2.5 font-mono">
           <span className="font-bold text-slate-900">{pothole.id}</span>
-          <StatusBadge severity={pothole.severity} />
+          <StatusBadge severity={effSeverity} />
           <PriorityBadge priority={pothole.priority} />
           <StatusBadge status={pothole.status} />
         </div>
@@ -69,7 +70,7 @@ export const PotholeDetailsModal: React.FC<PotholeDetailsModalProps> = ({ pothol
             </div>
             <div className="relative border border-slate-200 rounded overflow-hidden aspect-video bg-slate-100">
               <img
-                src={isRepaired && pothole.repairedImageUrl ? pothole.repairedImageUrl : pothole.imageUrl}
+                src={getPotholePhoto(pothole)}
                 alt={pothole.roadName}
                 className="w-full h-full object-cover"
               />
