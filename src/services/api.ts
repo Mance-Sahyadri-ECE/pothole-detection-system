@@ -19,16 +19,21 @@ import { eventBus } from './eventBus';
 const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
 const STORAGE_KEYS = {
-  POTHOLES: 'pds_potholes_v2',
-  NOTIFICATIONS: 'pds_notifications_v2',
-  COMPLAINTS: 'pds_complaints_v2',
-  ROBOT: 'pds_robot_v2'
+  POTHOLES: 'pds_potholes_v3',
+  NOTIFICATIONS: 'pds_notifications_v3',
+  COMPLAINTS: 'pds_complaints_v3',
+  ROBOT: 'pds_robot_v3'
 };
 
 function loadStorage<T>(key: string, fallback: T): T {
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : fallback;
+    if (!item) return fallback;
+    const parsed = JSON.parse(item);
+    if (Array.isArray(parsed) && Array.isArray(fallback) && parsed.length < fallback.length) {
+      return fallback;
+    }
+    return parsed;
   } catch {
     return fallback;
   }
