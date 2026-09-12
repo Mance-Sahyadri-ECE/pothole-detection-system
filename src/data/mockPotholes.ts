@@ -144,11 +144,11 @@ export const INITIAL_POTHOLES: Pothole[] = [
     status: 'INSPECTION',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 540).toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=800&q=80',
     trafficLevel: 'NORMAL',
     complaintCount: 0,
     assignedDepartment: 'Mangaluru City Corporation (MCC)',
-    repairNotes: 'Routine autonomous road surface inspection. Clean healthy asphalt.',
+    repairNotes: 'Routine autonomous road surface inspection. Intact clean asphalt.',
     repairHistory: [
       {
         id: 'RH-004-1',
@@ -199,7 +199,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
         id: 'RH-005-2',
         timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
         status: 'REPAIRED',
-        note: 'Quality inspection verified. Sealed and certified.',
+        note: 'Quality inspection verified. Sealed and certified with asphalt road patch.',
         updatedBy: 'Er. Naveen Hegde'
       }
     ],
@@ -218,7 +218,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
     status: 'REPAIRED',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 2200).toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?auto=format&fit=crop&w=800&q=80',
     repairedImageUrl: 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?auto=format&fit=crop&w=800&q=80',
     trafficLevel: 'HIGH',
     estimatedDimensions: {
@@ -231,13 +231,13 @@ export const INITIAL_POTHOLES: Pothole[] = [
     assignedDepartment: 'Mangaluru City Corporation (MCC)',
     assignedEngineer: 'Er. Rajesh Bhat',
     contractorCrew: 'MCC Quick Patch Unit',
-    repairNotes: 'Cold mix patching applied cleanly.',
+    repairNotes: 'Cold mix asphalt patch applied cleanly. Road sealed.',
     repairHistory: [
       {
         id: 'RH-006-1',
         timestamp: new Date(Date.now() - 1000 * 60 * 300).toISOString(),
         status: 'REPAIRED',
-        note: 'Repaired by quick-fix unit.',
+        note: 'Repaired by quick-fix unit. Sealed asphalt patch verified.',
         updatedBy: 'MCC Road Works'
       }
     ],
@@ -337,13 +337,13 @@ export const INITIAL_POTHOLES: Pothole[] = [
     assignedDepartment: 'NHAI Mangaluru',
     assignedEngineer: 'Er. Suresh Kumar (NHAI)',
     contractorCrew: 'NHAI Heavy Asphalt Repair Crew 1',
-    repairNotes: 'Heavy traffic junction hazard. Milling machine deployed.',
+    repairNotes: 'Heavy traffic junction hazard. Milling machine deployed for asphalt patch.',
     repairHistory: [
       {
         id: 'RH-009-1',
         timestamp: new Date(Date.now() - 1000 * 60 * 50).toISOString(),
         status: 'REPAIR IN PROGRESS',
-        note: 'Milling out damaged section for hot mix inlay.',
+        note: 'Milling out damaged section for hot mix asphalt inlay.',
         updatedBy: 'Er. Suresh Kumar'
       }
     ],
@@ -396,11 +396,11 @@ export const INITIAL_POTHOLES: Pothole[] = [
     status: 'INSPECTION',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 400).toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80',
     trafficLevel: 'NORMAL',
     complaintCount: 0,
     assignedDepartment: 'MCC Zone 2',
-    repairNotes: 'Smooth asphalt surface in good condition.',
+    repairNotes: 'Smooth clean asphalt surface in good condition.',
     repairHistory: [
       {
         id: 'RH-011-1',
@@ -494,7 +494,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
         id: 'RH-013-2',
         timestamp: new Date(Date.now() - 1000 * 60 * 300).toISOString(),
         status: 'REPAIRED',
-        note: 'Repaired & verified by MCC team.',
+        note: 'Repaired & verified with smooth asphalt road patch.',
         updatedBy: 'Er. Anitha Shetty'
       }
     ],
@@ -589,7 +589,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
     assignedDepartment: 'MCC South Division',
     assignedEngineer: 'Er. Rajesh Bhat',
     contractorCrew: 'MCC South Maintenance Unit',
-    repairNotes: 'Field crew currently applying bitumen tack coat.',
+    repairNotes: 'Field crew currently applying bitumen tack coat and hot mix asphalt patch.',
     repairHistory: [
       {
         id: 'RH-016-1',
@@ -602,7 +602,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
         id: 'RH-016-2',
         timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
         status: 'REPAIR IN PROGRESS',
-        note: 'Crew deployed on site for patch work.',
+        note: 'Crew deployed on site for active asphalt patch work.',
         updatedBy: 'Er. Rajesh Bhat'
       }
     ],
@@ -679,13 +679,13 @@ export const INITIAL_POTHOLES: Pothole[] = [
     assignedDepartment: 'Public Works Department (PWD)',
     assignedEngineer: 'Er. Naveen Hegde',
     contractorCrew: 'Airport Corridor Maintenance Crew',
-    repairNotes: 'Pre-monsoon patching round completed.',
+    repairNotes: 'Pre-monsoon patching round completed with sealed asphalt road patch.',
     repairHistory: [
       {
         id: 'RH-018-1',
         timestamp: new Date(Date.now() - 1000 * 60 * 500).toISOString(),
         status: 'REPAIRED',
-        note: 'Surface defect sealed with rapid cure asphalt.',
+        note: 'Surface defect sealed with rapid cure asphalt patch.',
         updatedBy: 'Er. Naveen Hegde'
       }
     ],
@@ -739,11 +739,11 @@ export const INITIAL_POTHOLES: Pothole[] = [
     status: 'INSPECTION',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 480).toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1528728329032-2972f65dfb3f?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80',
     trafficLevel: 'HIGH',
     complaintCount: 0,
     assignedDepartment: 'MCC Central',
-    repairNotes: 'Well-maintained city corridor. No defects logged.',
+    repairNotes: 'Well-maintained city corridor. Clean intact asphalt pavement.',
     repairHistory: [
       {
         id: 'RH-020-1',
@@ -768,7 +768,7 @@ export const INITIAL_POTHOLES: Pothole[] = [
     status: 'INSPECTION',
     detectedBy: 'Pothole Patrol Robot 01',
     detectedAt: new Date(Date.now() - 1000 * 60 * 700).toISOString(),
-    imageUrl: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=800&q=80',
     trafficLevel: 'HIGH',
     complaintCount: 0,
     assignedDepartment: 'NHAI Surathkal',
