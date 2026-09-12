@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { Pothole } from '../../types';
+import { Pothole, PotholeStatus } from '../../types';
 import { SAHYADRI_COORDINATES } from '../../utils/geoUtils';
 import { usePotholes } from '../../context/PotholeContext';
 import { useRobot } from '../../context/RobotContext';
 import { StatusBadge } from '../common/StatusBadge';
-import { PriorityBadge } from '../common/PriorityBadge';
 import { MapLegend } from './MapLegend';
-import { formatConfidence } from '../../utils/formatters';
+import { formatConfidence, formatDateTime } from '../../utils/formatters';
 import { Search, Crosshair, Cpu } from 'lucide-react';
 
 // Fix standard Leaflet default icon path issues
@@ -27,34 +26,42 @@ const MapController: React.FC<{ center: [number, number]; zoom: number }> = ({ c
   return null;
 };
 
+export const getRepairStatusCategory = (status: PotholeStatus) => {
+  if (status === 'REPAIRED') {
+    return 'REPAIRED';
+  }
+  if (status === 'REPAIR IN PROGRESS' || status === 'ASSIGNED' || status === 'INSPECTION') {
+    return 'WORK_IN_PROGRESS';
+  }
+  return 'PENDING_REPAIR';
+};
+
 const createMarkerIcon = (pothole: Pothole) => {
-  let bgColor = '#dc2626'; // RED: Severe / Critical Pothole
-  if (pothole.status === 'REPAIRED') {
-    bgColor = '#0d9488'; // TEAL/GREEN: Repaired Location
-  } else if (pothole.severity === 'NORMAL' || pothole.priority === 'NONE') {
-    bgColor = '#16a34a'; // GREEN: Normal / Safe Road Surface
-  } else if (pothole.priority === 'HIGH' || pothole.severity === 'HIGH') {
-    bgColor = '#ea580c'; // ORANGE: High-Severity Damage
-  } else if (pothole.severity === 'MODERATE') {
-    bgColor = '#eab308'; // YELLOW: Moderate Damage
+  const category = getRepairStatusCategory(pothole.status);
+  let bgColor = '#dc2626'; // 🔴 RED marker = PENDING REPAIR
+
+  if (category === 'REPAIRED') {
+    bgColor = '#16a34a'; // 🟢 GREEN marker = REPAIRED
+  } else if (category === 'WORK_IN_PROGRESS') {
+    bgColor = '#eab308'; // 🟡 YELLOW marker = WORK IN PROGRESS / REPAIR IN PROGRESS
   }
 
   const html = `
     <div style="
-      width: 14px; 
-      height: 14px; 
+      width: 16px; 
+      height: 16px; 
       border-radius: 50%; 
       background-color: ${bgColor}; 
       border: 2px solid #ffffff; 
-      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
     "></div>
   `;
 
   return L.divIcon({
     html,
     className: 'custom-pothole-pin',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
     popupAnchor: [0, -10]
   });
 };
@@ -156,7 +163,7 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
       {/* Top Map Toolbar */}
       {showFilters && (
         <div className="p-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
-          {/* Filters */}
+          {/* Severity Filters */}
           <div className="flex items-center gap-1.5 font-medium">
             <span className="text-slate-500 mr-1">Filter:</span>
             {(['ALL', 'NORMAL', 'MODERATE', 'HIGH', 'SEVERE', 'REPAIRED'] as const).map(filter => (
@@ -283,93 +290,119 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
           )}
 
           {/* Pothole Markers */}
-          {filteredPotholes.map(pothole => (
-            <Marker
-              key={pothole.id}
-              position={[pothole.latitude, pothole.longitude]}
-              icon={createMarkerIcon(pothole)}
-            >
-              <Popup className="custom-leaflet-popup">
-                {pothole.severity === 'NORMAL' ? (
-                  <div className="space-y-2 text-xs min-w-[230px] max-w-[270px] font-sans">
-                    <div className="flex items-center justify-between border-b border-slate-200 pb-1">
-                      <span className="font-mono font-bold text-slate-900">{pothole.id}</span>
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                        NORMAL / SAFE
-                      </span>
+          {filteredPotholes.map(pothole => {
+            const category = getRepairStatusCategory(pothole.status);
+            const lastHistory = pothole.repairHistory && pothole.repairHistory.length > 0
+              ? pothole.repairHistory[pothole.repairHistory.length - 1]
+              : null;
+            const lastUpdatedTime = lastHistory?.timestamp || pothole.detectedAt;
+            const displayImage = (pothole.status === 'REPAIRED' && pothole.repairedImageUrl)
+              ? pothole.repairedImageUrl
+              : pothole.imageUrl;
+
+            return (
+              <Marker
+                key={pothole.id}
+                position={[pothole.latitude, pothole.longitude]}
+                icon={createMarkerIcon(pothole)}
+              >
+                <Popup className="custom-leaflet-popup">
+                  <div className="space-y-2 text-xs min-w-[240px] max-w-[280px] font-sans">
+                    {/* Header: ID & Badges */}
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                      <span className="font-mono font-bold text-slate-900 text-sm">{pothole.id}</span>
+                      <div className="flex items-center gap-1">
+                        <StatusBadge severity={pothole.severity} />
+                        {category === 'REPAIRED' && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            🟢 REPAIRED
+                          </span>
+                        )}
+                        {category === 'WORK_IN_PROGRESS' && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-900 border border-amber-300">
+                            🟡 IN PROGRESS
+                          </span>
+                        )}
+                        {category === 'PENDING_REPAIR' && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-100 text-red-800 border border-red-300">
+                            🔴 PENDING
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {pothole.imageUrl && (
-                      <div className="w-full h-24 rounded overflow-hidden bg-slate-100 border border-slate-200">
+                    {/* Appropriate Road-Condition / Detection Image */}
+                    {displayImage && (
+                      <div className="w-full h-28 rounded overflow-hidden bg-slate-100 border border-slate-200 relative">
                         <img
-                          src={pothole.imageUrl}
+                          src={displayImage}
                           alt={pothole.id}
                           className="w-full h-full object-cover"
                         />
+                        {pothole.status === 'REPAIRED' && pothole.repairedImageUrl && (
+                          <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-emerald-800/90 text-white font-mono text-[9px] rounded font-semibold">
+                            Post-Repair Photo
+                          </span>
+                        )}
                       </div>
                     )}
 
-                    <div>
-                      <div className="font-semibold text-slate-900 leading-snug">Road Inspection</div>
-                      <div className="text-[11px] text-emerald-700 font-semibold">No pothole detected</div>
-                      <div className="text-[11px] text-slate-500">{pothole.location}</div>
-                    </div>
-
-                    <div className="font-mono text-[10px] bg-slate-50 p-1.5 rounded border border-slate-200 space-y-0.5 text-slate-700">
-                      <div>GPS: {pothole.latitude.toFixed(5)}, {pothole.longitude.toFixed(5)}</div>
-                      <div>AI Confidence: {formatConfidence(pothole.confidence)}</div>
-                      <div>Status: Safe / No Defect</div>
-                      <div>Inspected: {new Date(pothole.detectedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    </div>
-
-                    <button
-                      onClick={() => setSelectedPothole(pothole)}
-                      className="w-full py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2 text-xs min-w-[230px] max-w-[270px] font-sans">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-slate-900">{pothole.id}</span>
-                      <StatusBadge severity={pothole.severity} />
-                    </div>
-
-                    {pothole.imageUrl && (
-                      <div className="w-full h-24 rounded overflow-hidden bg-slate-100 border border-slate-200">
-                        <img
-                          src={pothole.imageUrl}
-                          alt={pothole.id}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-
+                    {/* Road / Location */}
                     <div>
                       <div className="font-semibold text-slate-900 leading-snug">{pothole.location}</div>
-                      <div className="text-[11px] text-slate-500">{pothole.area}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">{pothole.roadName} ({pothole.area})</div>
                     </div>
 
-                    <div className="font-mono text-[10px] bg-slate-50 p-1.5 rounded border border-slate-200 space-y-0.5 text-slate-700">
-                      <div>GPS: {pothole.latitude.toFixed(5)}, {pothole.longitude.toFixed(5)}</div>
-                      <div>AI Confidence: {formatConfidence(pothole.confidence)}</div>
-                      <div>Priority: {pothole.priority}</div>
-                      <div>Status: {pothole.status}</div>
-                      <div>Detected: {new Date(pothole.detectedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    {/* Telemetry Details */}
+                    <div className="font-mono text-[10px] bg-slate-50 p-2 rounded border border-slate-200 space-y-1 text-slate-700">
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">GPS:</span>
+                        <span className="font-bold">{pothole.latitude.toFixed(5)}° N, {pothole.longitude.toFixed(5)}° E</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">AI Confidence:</span>
+                        <span className="font-bold">{formatConfidence(pothole.confidence)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Severity:</span>
+                        <span className="font-bold">{pothole.severity}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Repair Status:</span>
+                        <span className="font-bold">
+                          {category === 'REPAIRED' ? '🟢 REPAIRED' : category === 'WORK_IN_PROGRESS' ? '🟡 WORK IN PROGRESS' : '🔴 PENDING REPAIR'} ({pothole.status})
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Assigned Engineer:</span>
+                        <span className="font-semibold text-slate-900 truncate max-w-[140px]">
+                          {pothole.assignedEngineer || 'Unassigned'}
+                        </span>
+                      </div>
+                      {pothole.contractorCrew && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Crew:</span>
+                          <span className="font-semibold text-slate-800">{pothole.contractorCrew}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Last Updated:</span>
+                        <span>{formatDateTime(lastUpdatedTime)}</span>
+                      </div>
                     </div>
 
+                    {/* Action Button */}
                     <button
                       onClick={() => setSelectedPothole(pothole)}
-                      className="w-full py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
+                      className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-medium transition-colors"
                     >
-                      View Details
+                      View Full Details
                     </button>
                   </div>
-                )}
-              </Popup>
-            </Marker>
-          ))}
+                </Popup>
+              </Marker>
+            );
+          })}
         </MapContainer>
 
         {/* Legend Overlay */}
@@ -380,3 +413,4 @@ export const PotholeMap: React.FC<PotholeMapProps> = ({
     </div>
   );
 };
+
